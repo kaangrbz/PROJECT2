@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/css/style.css">
+	<title>PROFILE PAGE</title>
+</head>
+
+<body>
+	<div class="cont">
+		<div class="header">
+			<div class="headercont">
+				<div class="logo">
+					<a href="/"><img src="/img/profile2.jpg" alt="logo error"></a>
+				</div>
+				<div class="search">
+					<input type="text" name="search" id="search" placeholder="search box to here">
+					<span class="searchbtn">
+						<i class="fas fa-search"></i>
+					</span>
+				</div>
+				<div class="right">
+					<div class="notif">
+						<i class="far fa-bell" id="bell"></i>
+						<div class="notifications">
+							<div class="arrow"> </div>
+							<ul>
+								<li><span class="notiftime">22:21</span><a href="javascript:void(0)">Ahmet bir yorumda
+										sizden bahsetti</a></li>
+								<li><span class="notiftime">02:52</span><a href="javascript:void(0)">Ali Gonderini
+										begendi</a></li>
+								<li><span class="notiftime">21:11</span><a href="javascript:void(0)">Ahmet bir yorumda
+										sizden bahsetti</a></li>
+								<li><span class="notiftime">04:57</span><a href="javascript:void(0)">Ayse Gonderini
+										begendi</a></li>
+								<li><span class="notiftime">13:15</span><a href="javascript:void(0)">Mustafa bir yorumda
+										sizden bahsetti</a></li>
+							</ul>
+						</div>
+					</div>
+					<label class="mode-control">
+						<input type="checkbox" id="mode-btn">
+						<span><i class="fas fa-moon"></i></span>
+						<span><i class="fas fa-sun"></i></span>
+					</label>
+					<a class="logout" href="/logout"><i class="fas fa-sign-out-alt"></i></a>
+					<div class="profile">
+						<a href="javascript:void(0)"><img src="/img/profile1.jpg" alt=""></a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="center prof">
+			<div class="centercont">
+				<div class="posts">
+					<div class="puser">
+						<div class="pname">
+							<div>
+								<img src="//picsum.photos/80/80" alt="">
+								<div>
+									<a href="javascript:void(0)">
+										<%= (locals.username) ? username : '' %>
+									</a>
+								</div>
+							</div>
+						</div>
+						<div class="pstatus">
+							<a href="#">
+								<div class="pcount">23</div>posts
+							</a>
+							<a href="#">
+								<div class="pfollowers">
+									<%= (locals.data) ? data.followers.count : 'null' %>
+								</div>followers
+							</a>
+							<a href="#">
+								<div class="pfollowings">
+									<%= (locals.data) ? data.following.count : 'null' %>
+								</div>following
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="edit">
+					<div class="editcont">
+						<h2>
+							<%= (locals.message) ? message : '' %>
+						</h2>
+						<br>
+						<form action="/edit/<%= (locals.username) ? username : '' %>" method="POST">
+							<input type="file" disabled name="profile">
+							<input type="text" value="<%= (locals.username) ? username : '' %>" name="username"
+								placeholder="username">
+							<input type="email" value="<%= (locals.email) ? email : '' %>" name="email" placeholder="email">
+							<input type="text" value="<%= (locals.fullname) ? fullname : '' %>" name="fullname" placeholder="full name">
+							<textarea name="biography" placeholder="biography" cols="30" rows="10" maxlength="1000"><%= (locals.biography) ? biography : '' %></textarea>
+							<button type="submit">Update</button>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="cright">right</div>
+		</div>
+	</div>
+	<i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
+	<script src="/js/jquery.min.js"></script>
+	<script src="/js/fontawesome.js"></script>
+	<script src="/js/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+{
+  "email": "kaan@test.com",
+  "fullname": "DEV Kaan",
+  "username": "kaan",
+  "followers": {
+    "count": 0,
+    "followers": []
+  },
+  "following": {
+    "count": 0,
+    "following": []
+  },
+  "roles": [],
+  "createdAt": "2020-12-31T03:36:31.131Z",
+  "updatedAt": "2020-12-31T03:36:31.131Z"
+}

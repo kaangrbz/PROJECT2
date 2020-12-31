@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/functions.js"></script>
+  <title>INDEX PAGE</title>
+</head>
+
+<body>
+  <div class="cont">
+    <div class="header">
+      <div class="headercont">
+        <div class="logo">
+          <a href="/"><img src="img/profile2.jpg" alt="logo error"></a>
+        </div>
+        <div class="search">
+          <input type="text" name="search" id="search" placeholder="search box to here">
+          <span class="searchbtn">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+        <div class="right">
+          <div class="notif">
+            <i class="far fa-bell" id="bell"></i>
+            <div class="notifications">
+              <div class="arrow"> </div>
+              <ul>
+                <li><span class="notiftime">22:21</span><a href="javascript:void(0)">Ahmet bir yorumda
+                    sizden bahsetti</a></li>
+                <li><span class="notiftime">02:52</span><a href="javascript:void(0)">Ali Gonderini
+                    begendi</a></li>
+                <li><span class="notiftime">21:11</span><a href="javascript:void(0)">Ahmet bir yorumda
+                    sizden bahsetti</a></li>
+                <li><span class="notiftime">04:57</span><a href="javascript:void(0)">Ayse Gonderini
+                    begendi</a></li>
+                <li><span class="notiftime">13:15</span><a href="javascript:void(0)">Mustafa bir yorumda
+                    sizden bahsetti</a></li>
+              </ul>
+            </div>
+          </div>
+          <label class="mode-control">
+            <input type="checkbox" id="mode-btn">
+            <span><i class="fas fa-moon"></i></span>
+            <span><i class="fas fa-sun"></i></span>
+          </label>
+					<a class="logout" href="/logout"><i class="fas fa-sign-out-alt"></i></a>
+          <div class="profile">
+            <a href="/<%= (locals.username) ? username : 'null' %>"><img src="img/profile1.jpg" alt=""></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="center">
+      <div class="centercont">
+        <div class="posts">
+          <div class="sendpost">
+            <div class="cont">
+              <h3>
+                <%= (locals.message) ? message : '' %>
+              </h3>
+              <button class="preview" id="preview">Preview</button>
+              <form action="/post" method="POST" enctype='application/json'>
+                <input disabled name="media" type="file" placeholder="Tags (optional)">
+                <input name="tags" type="text" placeholder="tags exp: html css asd qwe">
+                <textarea name="article" cols="30" rows="10"></textarea>
+                <button type="submit">POST</button>
+              </form>
+            </div>
+          </div>
+          <% if(locals.data && data.length>0){
+            for (i=0; i< data.length;i++){ %>
+
+              <div class="post" post-id="<%= data[i].postid %>">
+                <div class="header">
+                  <div class="user">
+                    <img src="//picsum.photos/80/80" alt="">
+
+                    <div>
+                      <a href="/<%= data[i].username %>">
+                        <%= data[i].username %>
+                          <% if(data[i].verified){ %>
+                            <div class="verified">
+                              <i class="far fa-check-circle"></i>
+                            </div>
+                            <% } %>
+                      </a>
+                      <div class="pdate">
+                        <%= (locals.date) ? date[i] : '' %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="more" id="more" data-id="<%= data[i].postid %>">
+                    ...
+                    <div class="options" id="opt" data-id="<%= data[i].postid %>">
+                      <div class="arrow"> </div>
+                      <ul>
+                        <% if(locals.isme && isme[i]){ %>
+                          <li><a href="javascript:void(0)">Sil</a></li>
+                          <% } %>
+                            <li><a href="javascript:void(0)">Paylas</a></li>
+                            <li><a href="javascript:void(0)">Sikayet et</a></li>
+                            <li><a href="javascript:void(0)">Kaydet</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="article">
+                  <p class="ptext">
+                    <%= data[i].article %>
+                  </p>
+                  <div class="pmedia">
+                    <img src="" alt="post img">
+                  </div>
+                </div>
+                <div class="buttons">
+                  <div class="like" data-id="<%= data[i].postid %>">
+                    Like
+                  </div>
+                  | Dislike/none | Share | Save</div>
+                <span class="likes" id="<%= data[i].postid %>">
+                  <%= (locals.likencomm[i]) ? likencomm[i][0] : '' %> 
+                </span>
+                likes
+                <div class="comments">
+                  <div class="comment" style="display: none;">
+                    <span class="uname">test username</span>
+                    <span class="comment">test commeent</span>
+                  </div>
+                </div>
+                <div class="sendcomment">
+                  <form>
+                    <input type="text">
+                    <button type="button">Send</button>
+                  </form>
+                </div>
+              </div>
+              <% } } else{ %>
+                no post
+                <% } %>
+        </div>
+      </div>
+      <div class="cright">right</div>
+    </div>
+  </div>
+  <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/fontawesome.js"></script>
+  <script src="js/index.js"></script>
+</body>
+
+</html>

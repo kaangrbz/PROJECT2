@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+    <link rel="stylesheet" href="/bootstrap/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container ">
+        <form method="POST" class="login" action="/signup">
+            <% try{ if (message !==undefined) { if (status !==undefined) { %>
+                <div class="alert alert-<%= status %>">
+                    <%= message %>
+                </div>
+                <% } } } catch(err){ console.log('adduser: message or something is not defined') } %>
+                
+                    <h1>Sign up</h1>
+                    <div class="form-group">
+                        <input value="<%= (locals.email) ? email : '' %>"    type="email" class="form-control" placeholder="email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <input value="<%= (locals.fullname) ? fullname : '' %>" type="text" class="form-control" placeholder="fullname" name="fullname">
+                    </div>
+                    <div class="form-group">
+                        <input value="<%= (locals.username) ? username : '' %>" type="text" class="form-control" placeholder="username" name="username">
+                    </div>
+                    <div class="form-group">
+                        <input value="<%= (locals.userpass) ? userpass : '' %>" type="password" class="form-control" placeholder="userpass" name="userpass">
+                    </div>
+                    <div class="form-group">
+                        You are already member? <a href="/login">Come here</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign up</button>
+        </form>
+    </div>
+</body>
+
+</html>
