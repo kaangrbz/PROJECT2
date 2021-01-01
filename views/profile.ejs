@@ -48,7 +48,7 @@
 					</label>
 					<a class="logout" href="/logout"><i class="fas fa-sign-out-alt"></i></a>
 					<div class="profile">
-						<a href="<%= (locals.username && locals.isme && isme) ? username : 'null' %>"><img src="img/profile1.jpg"
+						<a href="<%= (locals.username && isme) ? 'javascript:void(0)' : username %>"><img src="img/profile1.jpg"
 								alt=""></a>
 					</div>
 				</div>
@@ -72,7 +72,7 @@
 								<% if(locals.isme && isme){ %> <a href="/edit/<%= (locals.username) ? username : 'null' %>">Edit
 										profile</a>
 									<% } else{ %>
-										<a href="/follow/<%= (locals.username) ? username : 'null' %>">Follow</a>
+										<a class="follow" data-username="<%= (locals.username) ? username : 'null' %>" ><%= (locals.isfollowed && isfollowed) ? 'Unfollow' : 'Follow' %></a>
 										<% } %>
 
 							</div>

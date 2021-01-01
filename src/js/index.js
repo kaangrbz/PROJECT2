@@ -111,10 +111,11 @@ $('div.more').click((e) => {
 
 })
 
-$('.like').on('click',(e)=> {
+$('.like').on('click', (e) => {
   var likecount = document.querySelector('.likes');
   postid = $(e.currentTarget).data('id')
   $.post('/like/' + postid, res => {
+    a = document.getElementById(res.postid)
     console.log('like status: ' + res.status);
     if (res.status === 0) {
       // if not looged in
@@ -131,16 +132,12 @@ $('.like').on('click',(e)=> {
     }
     else if (res.status === 1) {
       // if looged in
-      a = document.getElementById(res.postid)
-      console.log(a);
-      a.innerHTML = Number(a.textContent)+1
-      
+      a.innerHTML = Number(a.textContent) + 1
+
     }
     else if (res.status === 2) {
       // if looged in
-      a = document.getElementById(res.postid)
-      console.log(a);
-      a.innerHTML = Number(a.textContent)-1
+      a.innerHTML = Number(a.textContent) - 1
     }
   });
 });
@@ -152,10 +149,43 @@ $.urlParam = function (name) {
   }
   return decodeURI(results[1]) || 0;
 }
-if($.urlParam('status')=='ok'){
+if ($.urlParam('status') == 'ok') {
   Swal.fire({
     icon: 'success',
     title: 'Success!',
     text: 'Updated successfuly.',
   })
 }
+
+$('.follow').on('click', (e) => {
+  username = $(e.currentTarget).data('username')
+  f1 = document.querySelector('.pfollowers')
+  f2 = document.querySelector('.pfollowings')
+  $.post('/follow/' + username, res => {
+    console.log('follow status: ' + res.status);
+    if (res.status === 0) {
+      // if not looged in
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'You should log in for this',
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          window.location.href = '/login'
+        }
+      })
+    }
+    else if (res.status === 1) {
+      $('.follow').html('Follow')
+      f1.innerHTML = Number(f1.textContent) - 1
+    }
+    else if (res.status === 2) {
+      f1.innerHTML = Number(f1.textContent) + 1
+      $('.follow').html('Unfollow')
+    }
+    else {
+      console.log('else');
+    }
+  });
+});
