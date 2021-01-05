@@ -15,6 +15,7 @@ const { format, render, cancel, register } = require('timeago.js');
 const {
 	User,
 	Post,
+	Count,
 } = require('./models/blogs')
 app.set('view engine', 'ejs')
 app.use('/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
@@ -55,6 +56,19 @@ function checkFileType(file, cb) {
 	}
 }
 
+const getNotif = (fullpathname) => {
+	return new Promise((resolve, reject) => {
+		fs.readFile(fullpathname, (err, data) => {
+			if (err) {
+				reject('err')  // calling `reject` will cause the promise to fail with or without the error passed as an argument
+				return        // and we don't want to go any further
+			}
+			resolve(JSON.parse(data))
+		})
+	})
+}
+
+
 const dbURL = "mongodb+srv://" + process.env.DBUSERNAME + ":" + process.env.DBUSERPASS + "@cluster0.k4rvg.mongodb.net/" + process.env.DBNAME + "?retryWrites=true&w=majority"
 
 var db = mongoose.connect(dbURL, {
@@ -86,7 +100,6 @@ app.use(session({
 
 app.route('/')
 	.get((req, res) => {
-
 		if (req.session.username) {
 			username = req.session.username
 			Post.find().limit(6).sort({
@@ -96,28 +109,32 @@ app.route('/')
 					if (result.length > 0) {
 						date = []
 						isme = []
-						likencomm = []
+						counts = []
 						try {
 							for (let i = 0; i < result.length; i++) {
 								mdate = result[i].updatedAt
 								date.push(t.formatDate(mdate, 'timeago'))
+
 								if (result[i].username == req.session.username)
 									isme.push(true)
 								else
 									isme.push(false)
+
 								fullpathname = 'src/posts/' + 'post_' + result[i].postid + '.json'
-								// fullpathname = 'src/posts/' + 'post_' + result[0].postid + '.json'
 								fs.readFile(fullpathname, (err, data) => {
 									if (err) {
 										res.end('read file error\n' + err)
 									}
 									else {
 										data = JSON.parse(data)
-										like = data.likes.count
-										comment = data.comment.count
-										likencomm.push([like, comment])
+										like = data.likes.count, comment = data.comment.count
+										counts.push([like, comment])
 										if (i == result.length - 1) {
-											res.render('index', { data: result, username, date, likencomm, isme })
+											getNotif('src/users/' + req.session.username + '/notifications.json')
+												.then(notif => {
+													res.render('index', { data: result, username, date, counts, isme, notif })
+												})
+												.catch(err => console.error('137 => ',err))
 										}
 									}
 								})
@@ -185,7 +202,6 @@ app.route('/login')
 			})
 		}
 	})
-
 app.route('/signup')
 	.get((req, res) => {
 		res.render('signup')
@@ -206,86 +222,112 @@ app.route('/signup')
 		else if (!username) res.render('signup', { message: 'username', status: 'danger', username, fullname, email })
 		else if (!userpass) res.render('signup', { message: 'userpass', status: 'danger', username, fullname, email })
 		else {
-			const user = new User({
-				authority: authority,
-				email: email,
-				fullname: fullname,
+
+			userObj = {
+				authority,
+				email,
+				fullname,
 				username,
-				userpass: userpass,
+				userpass,
 				biography: '',
 				visibility: true,
 				suspend: false,
 				verified: false,
 				createdAt: new Date(),
 				updatedAt: new Date()
-			})
-				.save()
-				.then(result => {
-					if (!result) {
-						res.render('signup', {
-							message: 'user could not added, try again',
-							status: 'danger'
-						})
+			}
+
+			Count.findOneAndUpdate({}, { $inc: { users: 1 } })
+				.then(ucount => {
+					if (ucount === null) {
+						countObj = {
+							users: 0,
+							posts: 0
+						}
+						const count = new Count(countObj)
+							.save()
+						userObj.userid = 0
 					}
 					else {
+						userObj.userid = ucount.users + 1
 					}
-					pathname = 'src/users/'
-					if (!fs.existsSync(pathname)) {
-						fs.mkdir(pathname, (err) => {
-							if (err) throw err
+					console.log(userObj.userid);
+					const user = new User(userObj)
+						.save()
+						.then(result => {
+							if (!result) {
+								res.render('signup', {
+									message: 'user could not added, try again',
+									status: 'danger'
+								})
+							}
+							else {
+								res.render('login', {
+									message: 'user added successfuly, let\'s login',
+									status: 'success'
+								})
+							}
+
+							pathname = 'src/users/'
+							if (!fs.existsSync(pathname)) {
+								fs.mkdir(pathname, (err) => {
+									if (err) throw err
+								})
+							}
+							pathname = 'src/users/' + username
+							if (!fs.existsSync(pathname)) {
+								fs.mkdir(pathname, (err) => {
+									if (err) throw err
+								})
+								files = ['profile', 'notifications', 'likes', 'saved']
+								userObjs = [
+									{
+										email,
+										fullname,
+										username,
+										followers: {
+											count: 0,
+											followers: []
+										},
+										following: {
+											count: 0,
+											following: []
+										},
+										createdAt: new Date(),
+										updatedAt: new Date()
+									},
+									[],
+									[],
+									[]
+								]
+								files.forEach((file, index) => {
+									fullpathname = pathname + '/' + file + ".json"
+									console.log(file);
+									fs.writeFile(fullpathname, JSON.stringify(userObjs[index]), (err) => {
+										if (err) throw err;
+									})
+								});
+							}
 						})
-					}
-					pathname = 'src/users/' + username
-					if (!fs.existsSync(pathname)) {
-						fs.mkdir(pathname, (err) => {
-							if (err) throw err
+						.catch((error) => {
+							if (error.code == 11000) {
+								// error codes page should need
+								res.render('signup', {
+									message: 'username is exist try another one',
+									status: 'danger',
+									username, fullname, email
+								})
+							}
+							else {
+								res.render('signup', {
+									message: 'there is an error\n' + error,
+									status: 'danger'
+								})
+							}
 						})
-						files = ['profile', 'likes', 'saved']
-						userObjs = [
-							{
-								email,
-								fullname,
-								username,
-								followers: {
-									count: 0,
-									followers: []
-								},
-								following: {
-									count: 0,
-									following: []
-								},
-								createdAt: new Date(),
-								updatedAt: new Date()
-							},
-							[],
-							[]
-						]
-						files.forEach((file, index) => {
-							fullpathname = pathname + '/' + file + ".json"
-							console.log(file);
-							fs.writeFile(fullpathname, JSON.stringify(userObjs[index]), (err) => {
-								if (err) throw err;
-								console.log('saved');
-							})
-						});
-						res.redirect('/login')
-					}
 				})
-				.catch((error) => {
-					if (error.code == 11000) {
-						// error codes page should need
-						res.render('signup', {
-							message: 'username is exist try another one',
-							status: 'danger',
-							username, fullname, email
-						})
-					}
-					else {
-						res.render('signup', {
-							message: 'there is an error\n' + error,
-							status: 'danger'
-						})
-					}
+				.catch(err => {
+					if (err) throw err
 				})
 		}
 	})
@@ -358,29 +400,40 @@ app.route('/post')
 				res.render('index', { message: 'Write something' })
 			}
 			else {
-				Post.find()
-					.then(c => {
-						c = c.length + 100000
+
+				postObj = {
+					likes: {
+						count: 0,
+						wholiked: []
+					},
+					comment: {
+						count: 0,
+						comments: []
+					}
+				}
+				Count.findOneAndUpdate({}, { $inc: { posts: 1 } })
+					.then(pcount => {
+						if (pcount === null) {
+							countObj = {
+								users: 0,
+								posts: 0
+							}
+							const count = new Count(countObj)
+								.save()
+							postObj.postid = 0
+						}
+						else {
+							postObj.postid = pcount.posts + 1
+						}
 
 						// save to json
 						pathname = 'src/posts/'
-						fullpathname = pathname + 'post_' + c + ".json"
+						fullpathname = pathname + 'post_' + postObj.postid + ".json"
 
 						if (!fs.existsSync(pathname)) {
 							fs.mkdir(pathname, (err) => {
 								if (err) res.send('create folder error')
 							})
-						}
-						postObj = {
-							postid: c,
-							likes: {
-								count: 0,
-								wholiked: []
-							},
-							comment: {
-								count: 0,
-								comments: []
-							}
 						}
 						fs.writeFile(fullpathname, JSON.stringify(postObj), (err) => {
 							if (err) throw err;
@@ -388,7 +441,7 @@ app.route('/post')
 
 						// save to db
 						const post = new Post({
-							postid: c,
+							postid: postObj.postid,
 							username: req.session.username,
 							fullname: req.session.fullname,
 							media: [],
@@ -468,29 +521,115 @@ app.route('/like/:postid')
 						wholiked = mdata.likes.wholiked
 						if (wholiked.length > 0) {
 							const index = wholiked.indexOf(req.session.username);
-							console.log(req.session.username);
-							console.log(index);
 							if (index > -1) {
-								// already liked
+								// already liked    // remove notification
+								postid = req.params.postid
 								mdata.likes.count = mdata.likes.count - 1
 								mdata.likes.wholiked.splice(index, 1);
 								fs.writeFile(fullpathname, JSON.stringify(mdata), err => {
 									if (err) throw err;
 									res.json({
 										status: 2,
-										postid: req.params.postid
 									})
 								})
 							}
 							else {
 								// not liked
+								postid = req.params.postid
+								Post.findOne({
+									postid
+								})
+									.select('username -_id')
+									.then(result => {
+										if (result) {
+											if (result.username !== req.session.username) {
+												postid = req.params.postid
+												Post.findOne({
+													postid
+												})
+													.select('username -_id')
+													.then(result => {
+														if (result) {
+															pathname = 'src/users/' + result.username
+															fullpathname = pathname + '/notifications.json'
+															if (result.username !== req.session.username) {
+																if (fs.existsSync(pathname)) {
+																	fs.readFile(fullpathname, (err, data) => {
+																		if (err) throw err
+																		data = JSON.parse(data)
+
+																		issent = false
+																		for (i = 0; i < data.length; i++) {
+																			if (data[i].nuser === req.session.username && data[i].ncode === 1) {
+																				issent = true
+																				break;
+																			}
+																		}
+																		if (!issent) { // already send notif 
+																			notifObj = {
+																				postid,
+																				nid: data.length + 1,
+																				nuser: req.session.username,
+																				ncode: 1,
+																				ntime: new Date(),
+																				read: false
+																			}
+																			data.unshift(notifObj)
+																			fs.writeFile(fullpathname, JSON.stringify(data), err => {
+																				if (err) throw err
+																				res.json({
+																					status: 1,
+																				})
+																			})
+																		}
+																	})
+																}
+																else {
+																	console.log('560');
+																}
+															}
+														}
+														else {
+															console.log('no result');
+														}
+													})
+												pathname = 'src/users/' + username
+												fullpathname = pathname + '/notifications.json'
+												if (fs.existsSync(pathname)) {
+													fs.readFile(fullpathname, (err, data) => {
+														if (err) throw err
+														data = JSON.parse(data)
+														notifObj = {
+															postid,
+															nid: data.length + 1,
+															nuser: req.session.username,
+															ncode: 1,
+															ntime: new Date(),
+															read: false
+														}
+														data.unshift(notifObj)
+														fs.writeFile(fullpathname, JSON.stringify(data), err => {
+															if (err) throw err
+
+														})
+													})
+												}
+												else {
+													console.log('560');
+												}
+											}
+										}
+										else {
+											console.log('no result');
+										}
+									})
+
 								mdata.likes.count = mdata.likes.count + 1
 								mdata.likes.wholiked.push(req.session.username)
 								fs.writeFile(fullpathname, JSON.stringify(mdata), err => {
 									if (err) throw err;
 									res.json({
 										status: 1,
-										postid: req.params.postid
 									})
 								})
 							}
@@ -498,13 +637,15 @@ app.route('/like/:postid')
 						}
 						else {
 							// first like
+							// notification
+
+							// like
 							mdata.likes.count = mdata.likes.count + 1
 							mdata.likes.wholiked.push(req.session.username)
 							fs.writeFile(fullpathname, JSON.stringify(mdata), err => {
 								if (err) throw err;
 								res.json({
 									status: 1,
-									postid: req.params.postid
 								})
 							})
 						}
@@ -519,7 +660,6 @@ app.route('/like/:postid')
 				res.render('posts', {
 					data: [],
 					date: null,
-					isLogged: t.checkAuthority(req.session.authority)
 				})
 			}
 		}
@@ -636,7 +776,6 @@ app.route('/edit/:username')
 			try {
 				var patt = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 				var email = patt.exec(email)[0];
-				console.log(email);
 			} catch (error) {
 				console.log(error);
 				res.render('editprofile', { message: 'not valid email', status: 'danger', username })
@@ -787,12 +926,7 @@ app.route('/follow/:username')
 							})
 						})
 					})
-
 				})
-
-				// followed user
-
-
 			}
 			else {
 				res.end('idk where is here')
@@ -801,6 +935,121 @@ app.route('/follow/:username')
 		}
 	})
 
+app.route('/delete/:postid')
+	.get((req, res) => {
+		res.end('/delete wrong method')
+	})
+	.post((req, res) => {
+		if (req.session.username) {
+			Post.findOne({ postid: req.params.postid })
+				.then(result => {
+					if (result) {
+						console.log(result);
+						if (result.username === req.session.username) {
+							Post.deleteOne({ postid: req.params.postid })
+								.then(mresult => {
+									if (result) {
+										fullpathname = 'src/posts/post_' + req.params.postid + '.json'
+										fs.unlink(fullpathname, err => {
+											if (err) throw err
+											res.json({ status: 1 })
+										})
+									}
+									else {
+										res.json({ status: 0 })
+									}
+								})
+						}
+						else {
+							res.json({ status: 2 })
+						}
+					}
+					else {
+						console.log(result);
+						res.json({ status: 0 })
+					}
+				})
+		}
+		else {
+			res.json({ status: 0 })
+		}
+	})
+
+app.route('/post/:postid')
+	.get((req, res) => {
+		res.end('/post soon')
+	})
+	.post((req, res) => {
+		res.end('/post soon')
+	})
+
+
+
+
+
+// ---------------------- FIRST THOUSAND LINE CODE ==========================
+
+app.route('/save/:postid')
+	.get((req, res) => {
+		res.end('/save wrong method')
+	})
+	.post((req, res) => {
+		if (!req.session.username) {
+			res.json({
+				status: 0
+			})
+		}
+		else {
+			pathname = 'src/users/'
+			fullpathname = pathname + req.session.username + "/saved.json"
+			if (fs.existsSync(fullpathname) && fs.existsSync(pathname)) {
+				fs.readFile(fullpathname, (err, data) => {
+					iserr = false
+					try {
+						data = JSON.parse(data)
+					} catch (error) {
+						iserr = true
+					}
+					m_var = 1
+					var index = -1;
+					var val = req.params.postid
+					var filteredObj = data.find(function (item, i) {
+						if (item.postid === val) {
+							index = i;
+							return i;
+						}
+					});
+					console.log('index: ' + index);
+					if (index > -1 && !iserr) {
+						data.splice(index, 1)
+						m_var = 2
+					}
+					else if (iserr) {
+						data = [{
+							postid: req.params.postid,
+							savedAt: new Date()
+						}]
+					}
+					else {
+						data.unshift({
+							postid: req.params.postid,
+							savedAt: new Date()
+						})
+					}
+					fs.writeFile(fullpathname, JSON.stringify(data), err => {
+						if (err) throw err
+						console.log('mvar: ' + m_var);
+						res.json({ status: m_var })
+					})
+				})
+			}
+			else {
+				res.json({
+					status: 0
+				})
+			}
+		}
+	})
 
 app.use((req, res, next) => {
 	res.status(404).send("Sorry can't find that or i'm working on it");
@@ -818,3 +1067,4 @@ if (port == null || port == "") {
 app.listen(port, () => {
 	console.log('Server working at http://localhost:' + port)
 })
+

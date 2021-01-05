@@ -54,13 +54,12 @@ window.onload = function setblockqu() {
 
 ///////////////////////////////// gotopbtn ////////////////////////////
 //Get the button
-let container = document.getElementsByClassName('cont')[0];
-var goTopBtn = document.getElementById("gotopbtn");
-
+let container = document.querySelector('html');
+var goTopBtn = document.querySelector("#gotopbtn");
 // When the user scrolls down 20px from the top of the document, show the button
 container.onscroll = function () { scrollFunction() };
 function scrollFunction() {
-  if (container.scrollTop > 300) {
+  if (container.scrollTop > 00) {
     goTopBtn.style.visibility = "visible";
     goTopBtn.style.opacity = "1";
   }
@@ -86,37 +85,38 @@ function randombgcolor() {
 setInterval(randombgcolor,1100);
 */
 
-$('#bell').on('click', (e) => {
+$('.notif').on('click', (e) => {
+  console.log('ee');
   if ($('.notifications').css('display') == 'none') {
     $('.notifications').show(300)
   }
   else {
     $('.notifications').hide(300)
   }
-
 })
 
-$('div.more').click((e) => {
-  console.log(e.target.id);
-  console.log($(e.currentTarget).data('id'));
-  postid = $(e.currentTarget).data('id');
-  console.log($(e.target.childNodes).toggle(300));
+$('.more').on('click', (e) => {
 
-  // if($('.options').css('display')=='none'){
-  //     $('.options').show(300)
-  // }
-  // else{
-  //     $('.options').hide(300)
-  // }
+  val = $(e.currentTarget).parent().parent().attr('data-post-id')
+  opt = $('div[data-post-id=' + val + '] .options');
+  if (opt.css('display') == 'none') {
+    opt.show(300)
+  }
+  else {
+    opt.hide(300)
+  }
 
 })
 
 $('.like').on('click', (e) => {
   var likecount = document.querySelector('.likes');
-  postid = $(e.currentTarget).data('id')
-  $.post('/like/' + postid, res => {
-    a = document.getElementById(res.postid)
-    console.log('like status: ' + res.status);
+  postid = $(e.currentTarget).parent().parent().attr('data-post-id')
+
+  url = '/like/' + postid
+  $.post(url, res => {
+    console.log(postid);
+    a = $('#' + postid)[0]
+    console.log(a);
     if (res.status === 0) {
       // if not looged in
       Swal.fire({
@@ -125,20 +125,17 @@ $('.like').on('click', (e) => {
         text: 'You should log in for this',
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
-        if (result.isConfirmed) {
+        if (result.isConfirmed)
           window.location.href = '/login'
-        }
       })
     }
-    else if (res.status === 1) {
-      // if looged in
+    else if (res.status === 1)
       a.innerHTML = Number(a.textContent) + 1
-
-    }
-    else if (res.status === 2) {
-      // if looged in
+    else if (res.status === 2)
       a.innerHTML = Number(a.textContent) - 1
-    }
+    else
+      a.innerHTML = "??"
+
   });
 });
 
@@ -189,3 +186,69 @@ $('.follow').on('click', (e) => {
     }
   });
 });
+
+$('.del').on('click', e => {
+  val = $(e.currentTarget).parent().parent().parent().parent().attr('data-post-id');
+  url = '/delete/' + val
+  $.post(url, res => {
+    if (res.status === 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Some errors while delete',
+      })
+    }
+    else if (res.status === 1) {
+      $('div[data-post-id=' + val + ']').removeAttr('data-post-id').remove()
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Yeyy...',
+        text: 'Post deleted successfuly',
+      })
+    }
+    else if (res.status === 2) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Heyy!',
+        text: 'Unauthorized process',
+      })
+    }
+    else {
+
+    }
+
+  })
+})
+
+
+$('.save').on('click', e => {
+  val = $(e.currentTarget).parent().parent().parent().parent().attr('data-post-id');
+  url = '/save/' + val
+  $.post(url, res => {
+    console.log('save status: ', res.status);
+    if (res.status === 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'You should log in for this',
+      })
+    }
+    else if (res.status === 1) {
+      $(e.currentTarget).html('<img src="/img/saved.svg" alt="">Saved')
+    }
+    else if (res.status === 2) {
+      $(e.currentTarget).html('<img src="/img/save.svg" alt="">Save')
+    }
+    else if (res.status === 3) {
+    }
+    else {
+      Swal.fire({
+        icon: 'error',
+        title: 'IDK!',
+        text: 'something happened',
+      })
+    }
+
+  })
+})

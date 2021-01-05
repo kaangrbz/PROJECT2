@@ -6,6 +6,10 @@ const userSchema = new Schema({
         type: Number,
         require: true
     },
+    userid: {
+        type: Number,
+        require: true
+    },
     username: {
         type: String,
         require: true,
@@ -23,10 +27,10 @@ const userSchema = new Schema({
         type: String,
         require: true,
     },
-    biography:{
+    biography: {
         type: String,
         default: '',
-        maxlength:1000
+        maxlength: 1000
     },
     visibility: {
         type: Boolean,
@@ -92,7 +96,21 @@ const postSchema = new Schema({
 
 const Post = mongoose.model('Post', postSchema);
 
+const countSchema = new Schema({
+    users: {
+        type: Number,
+        default:0
+    },
+    posts: {
+        type: Number,
+        default:0
+    }
+})
+
+const Count = mongoose.model('Count', countSchema);
+
 module.exports = {
     User,
-    Post
+    Post,
+    Count,
 }
