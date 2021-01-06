@@ -109,34 +109,61 @@ $('.more').on('click', (e) => {
 })
 
 $('.like').on('click', (e) => {
-  var likecount = document.querySelector('.likes');
   postid = $(e.currentTarget).parent().parent().attr('data-post-id')
-
-  url = '/like/' + postid
+  url = '/event/1/' + postid
   $.post(url, res => {
-    console.log(postid);
-    a = $('#' + postid)[0]
-    console.log(a);
-    if (res.status === 0) {
-      // if not looged in
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'You should log in for this',
-      }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
-        if (result.isConfirmed)
-          window.location.href = '/login'
-      })
+    c = $('.likes' + postid)[0]
+    d = $('.dislikes' + postid)[0]
+    console.log(res.status);
+    if (res.status === 0) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' }) }
+    else if (res.status === 1) c.innerHTML = (Number(c.textContent) + 1)
+    else if (res.status === 2) c.innerHTML = (Number(c.textContent) - 1)
+    else if (res.status === 3) {
+      c.innerHTML = (Number(c.textContent) + 1)
+      d.innerHTML = (Number(d.textContent) - 1)
     }
-    else if (res.status === 1)
-      a.innerHTML = Number(a.textContent) + 1
-    else if (res.status === 2)
-      a.innerHTML = Number(a.textContent) - 1
-    else
-      a.innerHTML = "??"
-
+    else c.innerHTML = ("??")
   });
+});
+
+$('.dislike').on('click', (e) => {
+  postid = $(e.currentTarget).parent().parent().attr('data-post-id')
+  url = '/event/2/' + postid
+  $.post(url, res => {
+    d = $('.dislikes' + postid)[0]
+    c = $('.likes' + postid)[0]
+    console.log(c);
+    if (res.status === 0) {
+      Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' })
+    }
+    else if (res.status === 1) d.innerHTML = (Number(d.textContent) + 1)
+    else if (res.status === 2) d.innerHTML = (Number(d.textContent) - 1)
+    else if (res.status === 3) {
+      d.innerHTML = (Number(d.textContent) + 1)
+      c.innerHTML = (Number(c.textContent) - 1)
+    }
+    else d.innerHTML = ("??")
+  });
+});
+
+$('.send').on('click', (e) => {
+  postid = $(e.currentTarget).parent().parent().parent().attr('data-post-id')
+  msg = $(e.currentTarget).prev().val() || 0
+  url = '/event/3/' + postid
+  if (msg.length > 0) {
+    data = { msg }
+    $.post(url, data, res => {
+      
+      input = $('div[data-post-id=' + postid + '] input[type=text]');
+      console.log(input);
+      if (res.status === 0) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' }) }
+      else if (res.status === 1) {
+      }
+    });
+  }
+  else {
+    console.log('write comment');
+  }
 });
 
 $.urlParam = function (name) {
@@ -147,11 +174,7 @@ $.urlParam = function (name) {
   return decodeURI(results[1]) || 0;
 }
 if ($.urlParam('status') == 'ok') {
-  Swal.fire({
-    icon: 'success',
-    title: 'Success!',
-    text: 'Updated successfuly.',
-  })
+  Swal.fire({ icon: 'success', title: 'Success!', text: 'Updated successfuly.' })
 }
 
 $('.follow').on('click', (e) => {
@@ -161,17 +184,11 @@ $('.follow').on('click', (e) => {
   $.post('/follow/' + username, res => {
     console.log('follow status: ' + res.status);
     if (res.status === 0) {
-      // if not looged in
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'You should log in for this',
-      }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
-        if (result.isConfirmed) {
-          window.location.href = '/login'
-        }
-      })
+      Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', })
+        .then((result) => {
+          if (result.isConfirmed)
+            window.location.href = '/login'
+        })
     }
     else if (res.status === 1) {
       $('.follow').html('Follow')
@@ -192,32 +209,15 @@ $('.del').on('click', e => {
   url = '/delete/' + val
   $.post(url, res => {
     if (res.status === 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Some errors while delete',
-      })
+      Swal.fire({ icon: 'error', title: 'Oops...', text: 'Some errors while delete', })
     }
     else if (res.status === 1) {
       $('div[data-post-id=' + val + ']').removeAttr('data-post-id').remove()
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Yeyy...',
-        text: 'Post deleted successfuly',
-      })
+      Swal.fire({ icon: 'success', title: 'Yeyy...', text: 'Post deleted successfuly', })
     }
     else if (res.status === 2) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Heyy!',
-        text: 'Unauthorized process',
-      })
+      Swal.fire({ icon: 'error', title: 'Heyy!', text: 'Unauthorized process', })
     }
-    else {
-
-    }
-
   })
 })
 
@@ -239,8 +239,6 @@ $('.save').on('click', e => {
     }
     else if (res.status === 2) {
       $(e.currentTarget).html('<img src="/img/save.svg" alt="">Save')
-    }
-    else if (res.status === 3) {
     }
     else {
       Swal.fire({

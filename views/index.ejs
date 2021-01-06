@@ -31,23 +31,23 @@
             <div>
               <% if (locals.notif){ %>
                 <ul>
-                  <% if(notif.length>0){ notif.slice(-5).reverse().forEach(n =>{ %>
+                  <% if(notif.length>0){ notif.slice(-5).forEach(n =>{ %>
                     <li>
                       <% switch (n.ncode) { case 1: %>
                         <a href="post/<%= n.postid %>"><b>
                             <%= n.nuser %>
                           </b>liked your post </a>
                         <% break; case 2: %>
-                          <a href="post/<%= n.postid %>"><b>
-                              <%= n.nuser %>
-                            </b>comment to your post </a>
-                          <% break; case 3: %>
+                        <a href="/<%= n.nuser %>"><b>
+                            <%= n.nuser %>
+                          </b> started to follow you</a>
+                        <% break; case 3: %>
                             <a href="post/<%= n.postid %>"><b>
                                 <%= n.nuser %>
-                              </b>tagged you at </a>
+                              </b>comment to your post</a>
                             <% break; default: break; } %>
                               <span class="ntime">
-                                <%= n.ntime %> hours
+                                <%= n.ntime %>
                               </span>
                     </li>
                     <% }) } else{ %>
@@ -138,20 +138,26 @@
                   <img class="dislike" src="/img/arrow.svg" alt="">
                   <img class="share" src="/img/share.svg" alt="">
                 </div>
-                <span class="likes" id="<%= data[i].postid %>">
-                  <%= (locals.counts[i]) ? counts[i][0] : '' %>
-                </span>
-                likes
+
+                <div class="buttons">
+                  <span class="likes<%= data[i].postid %>">
+                    <%= (locals.counts[i]) ? counts[i][0] : '' %>
+                  </span>
+                  /
+                  <span class="dislikes<%= data[i].postid %>">
+                    <%= (locals.counts[i]) ? counts[i][1] : '' %>
+                  </span>
+                </div>
                 <div class="comments">
-                  <div class="comment" style="display: none;">
-                    <span class="uname">test username</span>
-                    <span class="comment">test commeent</span>
-                  </div>
+                </div>
+                <div class="comment" style="display: none;">
+                  <span class="uname">test username</span>
+                  <span class="comment">test commeent</span>
                 </div>
                 <div class="sendcomment">
-                  <form>
+                  <form >
                     <input type="text">
-                    <button type="button">Send</button>
+                    <button type="button" class="send">Send</button>
                   </form>
                 </div>
               </div>
