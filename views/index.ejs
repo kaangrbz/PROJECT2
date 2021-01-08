@@ -38,10 +38,10 @@
                             <%= n.nuser %>
                           </b>liked your post </a>
                         <% break; case 2: %>
-                        <a href="/<%= n.nuser %>"><b>
-                            <%= n.nuser %>
-                          </b> started to follow you</a>
-                        <% break; case 3: %>
+                          <a href="/<%= n.nuser %>"><b>
+                              <%= n.nuser %>
+                            </b> started to follow you</a>
+                          <% break; case 3: %>
                             <a href="post/<%= n.postid %>"><b>
                                 <%= n.nuser %>
                               </b>comment to your post</a>
@@ -134,9 +134,22 @@
                   </div>
                 </div>
                 <div class="buttons">
-                  <img class="like" src="/img/arrow.svg" alt="">
-                  <img class="dislike" src="/img/arrow.svg" alt="">
-                  <img class="share" src="/img/share.svg" alt="">
+                  <% if(locals.lnd && lnd.length> 0){
+                    if(lnd[i][0]) { %> <img class="like" src="/img/arrow2.svg" alt="like">
+                    <% } else { %>
+                      <img class="like" src="/img/arrow.svg" alt="like">
+                      <% } if(lnd[i][1]) { %> <img class="dislike"  src="/img/arrow2.svg" alt="dislike">
+                        <% } else { %>
+                          <img class="dislike" src="/img/arrow.svg" alt="dislike">
+                          <% } %>
+
+                            <img class="share" src="/img/share.svg" alt="">
+
+                            <% } else{ %>
+                              <img class="like" src="/img/arrow.svg" alt="">
+                              <img class="dislike" src="/img/arrow.svg" alt="">
+                              <img class="share" src="/img/share.svg" alt="">
+                              <% } %>
                 </div>
 
                 <div class="buttons">
@@ -155,7 +168,7 @@
                   <span class="comment">test commeent</span>
                 </div>
                 <div class="sendcomment">
-                  <form >
+                  <form>
                     <input type="text">
                     <button type="button" class="send">Send</button>
                   </form>

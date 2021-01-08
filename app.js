@@ -110,6 +110,7 @@ app.route('/')
                   date = []
                   isme = []
                   counts = []
+                  lnd = []
                   try {
                      for (let i = 0; i < result.length; i++) {
                         mdate = result[i].updatedAt
@@ -121,21 +122,26 @@ app.route('/')
                            isme.push(false)
 
                         fullpathname = 'src/posts/' + 'post_' + result[i].postid + '.json'
+                        fullpathname2 = 'src/users/' + req.session.username + '/notifications.json'
                         fs.readFile(fullpathname, (err, data) => {
                            if (err) {
                               res.end('read file error\n' + err)
                            }
                            else {
                               data = JSON.parse(data)
-                              like = data.likes.c
-                              dislike = data.dislikes.c
-                              comment = data.comments.c
-                              counts.push([like, dislike, comment])
+                              likes = data.likes
+                              dislikes = data.dislikes
+                              comment = data.comments
+                              i1 = likes.who.indexOf(req.session.username)
+                              i2 = dislikes.who.indexOf(req.session.username)
+                              if (i1 > -1) lnd.push([1, 0])
+                              else if (i2 > -1) lnd.push([0, 1])
+                              counts.push([likes.c, dislikes.c, comment.c])
 
                               if (i == result.length - 1) {
-                                 getNotif('src/users/' + req.session.username + '/notifications.json')
+                                 getNotif(fullpathname2)
                                     .then(notif => {
-                                       res.render('index', { data: result, username, date, counts, isme, notif })
+                                       res.render('index', { data: result, username, date, counts, isme, notif, lnd })
                                     })
                                     .catch(err => console.error('137 => ', err))
                               }
@@ -515,6 +521,8 @@ app.route('/event/:ecode/:postid')
          // limit event count
          pathname = 'src/posts/'
          fullpathname = pathname + 'post_' + req.params.postid + ".json"
+
+         pathname3 = 'src/users/'
          var postFolder = fs.existsSync(pathname)
          if (!postFolder) {
             // posts folder is not exist and will create
@@ -535,12 +543,32 @@ app.route('/event/:ecode/:postid')
                   if (i1 == -1 && i2 == -1) {
                      scode = 1
                      data.likes.c++
-                     data.likes.who.push(req.session.username)
+                     data.likes.who.push(req.session.username)                     
                   }
                   else if (i1 > -1 && i2 == -1) {
                      scode = 2
                      data.likes.c--
                      data.likes.who.splice(i1, 1)
+                     Post.findOne({
+                        postid: req.params.postid
+                     })
+                        .select('username _-id')
+                        .then(u => {
+                           console.log(u.username);
+                           if (u.username !== req.session.username) {
+                              getNotif(fullpathname3)
+                                 .then(notif => {
+                                    notifObj = { nid: notif.length + 1, postid, nuser: req.session.username, ncode: 1, ntime: new Date(), read: false }
+                                    notif.unshift(notifObj)
+                                    fs.writeFile(fullpathname3, JSON.stringify(notif), err => {
+                                       if (err) console.log('566', err);
+                                    })
+                                 }).catch(err => console.log(err))
+                           }
+                           else {
+                              console.log('571');
+                           }
+                        })
                   }
                   else if (i1 == -1 && i2 > -1) {
                      scode = 3
@@ -588,47 +616,38 @@ app.route('/event/:ecode/:postid')
                      .then(u => {
                         console.log(u.username);
                         if (u.username !== req.session.username) {
-                           pathname = 'src/users/'
-                           fullpathname3 = pathname + u.username + "/notifications.json"
                            getNotif(fullpathname3)
                               .then(notif => {
-                                 notifObj = {
-                                    nid: notif.length + 1,
-                                    postid: req.params.postid,
-                                    nuser: req.session.username,
-                                    ncode: 3,
-                                    ntime: new Date(),
-                                    read: false
-                                 }
+                                 notifObj = { nid: notif.length + 1, postid: req.params.postid, nuser: req.session.username, ncode: 3, ntime: new Date(), read: false }
                                  notif.unshift(notifObj)
                                  fs.writeFile(fullpathname3, JSON.stringify(notif), err => {
                                     if (err) console.log('605', err);
                                  })
                               }).catch(err => console.log(err))
                         }
-                        else{
+                        else {
                            console.log('610');
                         }
                      })
-                     // // if delete the comment
-                     // getNotif(fullpathname3)
-                     // .then(notif => {
-                     //    var index = -1;
-                     //    var filteredObj = notif.find(function (item, i) {
-                     //       if (item.nuser === req.session.username && item.ncode == 2) { index = i; return i; }
-                     //    });
+                  // // if delete the comment
+                  // getNotif(fullpathname3)
+                  // .then(notif => {
+                  //    var index = -1;
+                  //    var filteredObj = notif.find(function (item, i) {
+                  //       if (item.nuser === req.session.username && item.ncode == 2) { index = i; return i; }
+                  //    });
 
-                     //    notif.splice(index, 1)
-                     //    fs.writeFile(fullpathname3, JSON.stringify(notif), err => {
-                     //       if (err) throw err
-                     //    })
-                     // }).catch(err => console.error('885 => ', err))
+                  //    notif.splice(index, 1)
+                  //    fs.writeFile(fullpathname3, JSON.stringify(notif), err => {
+                  //       if (err) throw err
+                  //    })
+                  // }).catch(err => console.error('885 => ', err))
 
                }
                console.log('scode: ', scode);
                fs.writeFile(fullpathname, JSON.stringify(data), err => {
                   if (err) throw err
-                  // when send comment, sen aldo username and msg 
+                  // when send comment, sen aldo username and msg !!!!!!!!!
                   res.json({
                      status: scode
                   })

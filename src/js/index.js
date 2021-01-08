@@ -97,8 +97,8 @@ $('.notif').on('click', (e) => {
 
 $('.more').on('click', (e) => {
 
-  val = $(e.currentTarget).parent().parent().attr('data-post-id')
-  opt = $('div[data-post-id=' + val + '] .options');
+  postid = $(e.currentTarget).parent().parent().attr('data-post-id')
+  opt = $('div[data-post-id=' + postid + '] .options');
   if (opt.css('display') == 'none') {
     opt.show(300)
   }
@@ -114,13 +114,21 @@ $('.like').on('click', (e) => {
   $.post(url, res => {
     c = $('.likes' + postid)[0]
     d = $('.dislikes' + postid)[0]
-    console.log(res.status);
+    f = $('div[data-post-id=' + postid + '] .dislike')
     if (res.status === 0) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' }) }
-    else if (res.status === 1) c.innerHTML = (Number(c.textContent) + 1)
-    else if (res.status === 2) c.innerHTML = (Number(c.textContent) - 1)
+    else if (res.status === 1) {
+      c.innerHTML = (Number(c.textContent) + 1)
+      e.currentTarget.src = '/img/arrow2.svg'
+    }
+    else if (res.status === 2) {
+      c.innerHTML = (Number(c.textContent) - 1)
+      e.currentTarget.src = '/img/arrow.svg'
+    }
     else if (res.status === 3) {
       c.innerHTML = (Number(c.textContent) + 1)
       d.innerHTML = (Number(d.textContent) - 1)
+      e.currentTarget.src = '/img/arrow2.svg'
+      f.attr('src', '/img/arrow.svg')
     }
     else c.innerHTML = ("??")
   });
@@ -132,15 +140,23 @@ $('.dislike').on('click', (e) => {
   $.post(url, res => {
     d = $('.dislikes' + postid)[0]
     c = $('.likes' + postid)[0]
-    console.log(c);
+    f = $('div[data-post-id=' + postid + '] .like')
     if (res.status === 0) {
       Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' })
     }
-    else if (res.status === 1) d.innerHTML = (Number(d.textContent) + 1)
-    else if (res.status === 2) d.innerHTML = (Number(d.textContent) - 1)
+    else if (res.status === 1) {
+      d.innerHTML = (Number(d.textContent) + 1)
+      e.currentTarget.src = '/img/arrow2.svg'
+    }
+    else if (res.status === 2) {
+      d.innerHTML = (Number(d.textContent) - 1)
+      e.currentTarget.src = '/img/arrow.svg'
+    }
     else if (res.status === 3) {
       d.innerHTML = (Number(d.textContent) + 1)
       c.innerHTML = (Number(c.textContent) - 1)
+      e.currentTarget.src = '/img/arrow2.svg'
+      f.attr('src', '/img/arrow.svg')
     }
     else d.innerHTML = ("??")
   });
@@ -153,7 +169,7 @@ $('.send').on('click', (e) => {
   if (msg.length > 0) {
     data = { msg }
     $.post(url, data, res => {
-      
+
       input = $('div[data-post-id=' + postid + '] input[type=text]');
       console.log(input);
       if (res.status === 0) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' }) }
