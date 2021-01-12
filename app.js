@@ -56,19 +56,17 @@ function checkFileType(file, cb) {
    }
 }
 
-const getNotif = (fullpathname) => {
+const getJSON = (fullpathname) => {
    return new Promise((resolve, reject) => {
       fs.readFile(fullpathname, (err, data) => {
          if (err) {
-            reject('err')  // calling `reject` will cause the promise to fail with or without the error passed as an argument
+            reject('err1')  // calling `reject` will cause the promise to fail with or without the error passed as an argument
             return        // and we don't want to go any further
          }
          resolve(JSON.parse(data))
       })
    })
 }
-
-
 const dbURL = "mongodb+srv://" + process.env.DBUSERNAME + ":" + process.env.DBUSERPASS + "@cluster0.k4rvg.mongodb.net/" + process.env.DBNAME + "?retryWrites=true&w=majority"
 
 var db = mongoose.connect(dbURL, {
@@ -97,12 +95,15 @@ app.use(session({
 }));
 
 // ## ROUTES ##
+app.get('/posts/*', function (req, res, next) {
+   res.redirect('/')
+});
 
 app.route('/')
    .get((req, res) => {
       if (req.session.username) {
          username = req.session.username
-         Post.find().limit(8).sort({
+         Post.find().limit(6).sort({
             createdAt: -1
          })
             .then(result => {
@@ -121,8 +122,8 @@ app.route('/')
                         else
                            isme.push(false)
 
-                        fullpathname = 'src/posts/' + 'post_' + result[i].postid + '.json'
-                        fullpathname2 = 'src/users/' + req.session.username + '/notifications.json'
+                        fullpathname = 'forbidden/posts/' + 'post_' + result[i].postid + '.json'
+                        fullpathname2 = 'forbidden/users/' + req.session.username + '/notifications.json'
                         fs.readFile(fullpathname, (err, data) => {
                            if (err) {
                               res.end('read file error\n' + err)
@@ -136,10 +137,11 @@ app.route('/')
                               i2 = dislikes.who.indexOf(req.session.username)
                               if (i1 > -1) lnd.push([1, 0])
                               else if (i2 > -1) lnd.push([0, 1])
+                              else lnd.push([0, 0])
                               counts.push([likes.c, dislikes.c, comment.c])
 
                               if (i == result.length - 1) {
-                                 getNotif(fullpathname2)
+                                 getJSON(fullpathname2)
                                     .then(notif => {
                                        res.render('index', { data: result, username, date, counts, isme, notif, lnd })
                                     })
@@ -226,7 +228,6 @@ app.route('/signup')
 
       var patt = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
       var t_email = patt.test(email)
-      console.log(t_email);
       if (!t_email) res.render('signup', { message: 'email', status: 'danger', username, fullname, email })
       else if (!fullname) res.render('signup', { message: 'fullname', status: 'danger', username, fullname, email })
       else if (!username) res.render('signup', { message: 'username', status: 'danger', username, fullname, email })
@@ -261,7 +262,6 @@ app.route('/signup')
                else {
                   userObj.userid = ucount.users + 1
                }
-               console.log(userObj.userid);
                const user = new User(userObj)
                   .save()
                   .then(result => {
@@ -278,13 +278,13 @@ app.route('/signup')
                         })
                      }
 
-                     pathname = 'src/users/'
+                     pathname = 'forbidden/users/'
                      if (!fs.existsSync(pathname)) {
                         fs.mkdir(pathname, (err) => {
                            if (err) throw err
                         })
                      }
-                     pathname = 'src/users/' + username
+                     pathname = 'forbidden/users/' + username
                      if (!fs.existsSync(pathname)) {
                         fs.mkdir(pathname, (err) => {
                            if (err) throw err
@@ -312,7 +312,6 @@ app.route('/signup')
                         ]
                         files.forEach((file, index) => {
                            fullpathname = pathname + '/' + file + ".json"
-                           console.log(file);
                            fs.writeFile(fullpathname, JSON.stringify(userObjs[index]), (err) => {
                               if (err) throw err;
                            })
@@ -346,52 +345,151 @@ app.get('/logout', (req, res) => {
    req.session.destroy()
    res.redirect('/')
 })
+var aa = 0
+app.route('/aa')
+   .get((req, res) => {
+      aa++
+      res.send(aa.toString())
+   })
+
 app.route('/:username')
    .get((req, res) => {
       if (req.session.username) {
-         username = ''
          if (req.params.username !== 'favicon.ico') {
-            username = req.params.username
-         }
-         User.findOne({
-            username
-         })
-            .then(result => {
-               if (result) {
-                  fullpathname = 'src/users/' + result.username + '/profile.json'
-                  isfileexist = fs.existsSync(fullpathname);
-                  isme = false
-                  if (req.params.username === req.session.username)
-                     isme = true
-
-                  if (isfileexist) {
-                     fs.readFile(fullpathname, (err, data) => {
-                        if (err) throw err;
-                        data = JSON.parse(data)
-
-                        const index = data.followers.followers.indexOf(req.session.username);
-                        isfollowed = false
-                        if (index > -1)
-                           isfollowed = true
-                        res.render('profile', { data: data, username, isme, isfollowed })
+            u1 = req.session.username
+            u2 = req.params.username
+            isme = false
+            if (u1 == u2)
+               isme = true
+            fullpathname2 = 'forbidden/users/' + req.session.username + '/profile.json'
+            fullpathname3 = 'forbidden/users/' + req.session.username + '/notifications.json'
+            User.findOne({ username: u2 })
+               .then(u => {
+                  if (u) {
+                     fs.readFile(fullpathname2, (err, mdata) => {
+                        if (err) throw err
+                        mdata = JSON.parse(mdata)
+                        req.session.mdata = mdata
                      })
+                     Post.find({ username: u2 }).limit(8).sort({
+                        createdAt: -1
+                     })
+                        .then(result => {
+                           if (result.length > 0) {
+                              date = []
+                              counts = []
+                              lnd = []
+
+
+                              try {
+                                 for (let i = 0; i < result.length; i++) {
+                                    mdate = result[i].updatedAt
+                                    date.push(t.formatDate(mdate, 'timeago'))
+
+
+                                    fullpathname = 'forbidden/posts/' + 'post_' + result[i].postid + '.json'
+                                    fs.readFile(fullpathname, (err, data) => {
+                                       if (err) {
+                                          res.end('read file error\n' + err)
+                                       }
+                                       else {
+                                          data = JSON.parse(data)
+                                          likes = data.likes
+                                          dislikes = data.dislikes
+                                          comment = data.comments
+                                          i1 = likes.who.indexOf(req.session.username)
+                                          i2 = dislikes.who.indexOf(req.session.username)
+                                          if (i1 > -1) lnd.push([1, 0])
+                                          else if (i2 > -1) lnd.push([0, 1])
+                                          else lnd.push([0, 0])
+                                          counts.push([likes.c, dislikes.c, comment.c])
+
+                                          if (i == result.length - 1) {
+                                             getJSON(fullpathname3)
+                                                .then(notif => {
+                                                   res.render('profile', { data: result, u1, u2, date, counts, isme, notif, lnd })
+                                                })
+                                                .catch(err => console.error('400 => ', err))
+                                          }
+                                       }
+                                    })
+                                 }
+                              } catch (err) {
+                                 if (err) res.render('profile', { data: null, u1, u2, isme })
+                              }
+                           }
+                           else {
+                              getJSON(fullpathname3)
+                                 .then(notif => {
+                                    res.render('profile', { data: null, u1, u2, isme, notif })
+                                 })
+                                 .catch(err => console.error('414 => ', err))
+                           }
+                        })
+                        .catch(err => {
+                           if (err) throw err
+                        })
                   }
                   else {
-                     res.render('profile', { data: null, username, isme })
+                     res.end('no user')
                   }
-               }
-               else {
-                  res.end('no user')
-               }
-            })
-            .catch(err => {
-               if (err) throw err
-            })
+               })
+         }
       }
       else {
          res.redirect('/login')
       }
    })
+
+pcount = 0
+app.route('/:username/getpost')
+   .get((req, res) => {
+      res.redirect('/')
+   })
+   .post((req, res) => {
+      if (req.session.username) {
+         console.log(pcount);
+         username = req.params.username
+         req.session.loggedusername = req.params.username
+         User.find({ username }).select('username -_id').then(u => {
+            if (u) {
+               Post.find({ username }).limit(pcount)
+                  .then(result => {
+                     if (result) {
+
+                     }
+                     else {
+                        res.json({
+                           status: 2,
+                           result: 'no post'
+                        })
+                     }
+                  })
+                  .catch(err => {
+                     res.json({
+                        status: 3,
+                        result: err
+                     })
+                  })
+               // pcount += 5
+            }
+            else {
+               res.json({
+                  status: 3,
+                  result: 'no user'
+               })
+            }
+         })
+
+      }
+      else {
+         res.json({
+            status: 0,
+            result: 'not login'
+         })
+      }
+   })
+
 
 app.route('/post')
    .get((req, res) => {
@@ -444,7 +542,7 @@ app.route('/post')
                   }
 
                   // save to json
-                  pathname = 'src/posts/'
+                  pathname = 'forbidden/posts/'
                   fullpathname = pathname + 'post_' + postObj.postid + ".json"
 
                   if (!fs.existsSync(pathname)) {
@@ -519,10 +617,10 @@ app.route('/event/:ecode/:postid')
       }
       else {
          // limit event count
-         pathname = 'src/posts/'
+         pathname = 'forbidden/posts/'
          fullpathname = pathname + 'post_' + req.params.postid + ".json"
 
-         pathname3 = 'src/users/'
+         pathname3 = 'forbidden/users/'
          var postFolder = fs.existsSync(pathname)
          if (!postFolder) {
             // posts folder is not exist and will create
@@ -543,7 +641,7 @@ app.route('/event/:ecode/:postid')
                   if (i1 == -1 && i2 == -1) {
                      scode = 1
                      data.likes.c++
-                     data.likes.who.push(req.session.username)                     
+                     data.likes.who.push(req.session.username)
                   }
                   else if (i1 > -1 && i2 == -1) {
                      scode = 2
@@ -554,9 +652,9 @@ app.route('/event/:ecode/:postid')
                      })
                         .select('username _-id')
                         .then(u => {
-                           console.log(u.username);
                            if (u.username !== req.session.username) {
-                              getNotif(fullpathname3)
+                              fullpathname3 = pathname3 + u.username + '/notifications.json'
+                              getJSON(fullpathname3)
                                  .then(notif => {
                                     notifObj = { nid: notif.length + 1, postid, nuser: req.session.username, ncode: 1, ntime: new Date(), read: false }
                                     notif.unshift(notifObj)
@@ -577,6 +675,12 @@ app.route('/event/:ecode/:postid')
                      data.likes.c++
                      data.likes.who.push(req.session.username)
                   }
+                  fs.writeFile(fullpathname, JSON.stringify(data), err => {
+                     if (err) throw err
+                     res.json({
+                        status: scode
+                     })
+                  })
                }
                else if (ecode == 2) {
                   if (i1 == -1 && i2 == -1) {
@@ -599,6 +703,12 @@ app.route('/event/:ecode/:postid')
                   else {
                      scode = 14
                   }
+                  fs.writeFile(fullpathname, JSON.stringify(data), err => {
+                     if (err) throw err
+                     res.json({
+                        status: scode
+                     })
+                  })
                }
                else if (ecode == 3) {
                   msg = req.body.msg || ''
@@ -608,15 +718,15 @@ app.route('/event/:ecode/:postid')
                   }
                   data.comments.c++
                   data.comments.who.push({ userid: req.session.userid, msg, createdAt: new Date(), updatedAt: new Date() })
-                  scode = 4
+                  scode = 1
                   Post.findOne({
                      postid: req.params.postid
                   })
                      .select('username _-id')
                      .then(u => {
-                        console.log(u.username);
                         if (u.username !== req.session.username) {
-                           getNotif(fullpathname3)
+                           fullpathname3 = pathname3 + u.username + '/notifications.json'
+                           getJSON(fullpathname3)
                               .then(notif => {
                                  notifObj = { nid: notif.length + 1, postid: req.params.postid, nuser: req.session.username, ncode: 3, ntime: new Date(), read: false }
                                  notif.unshift(notifObj)
@@ -629,8 +739,18 @@ app.route('/event/:ecode/:postid')
                            console.log('610');
                         }
                      })
+                  fs.writeFile(fullpathname, JSON.stringify(data), err => {
+                     if (err) throw err
+                     // when send comment, sen also username and msg !!!!!!!!!
+                     res.json({
+                        status: scode,
+                        username: req.session.username,
+                        msg,
+                        date: t.formatDate(new Date(), 'timeago')
+                     })
+                  })
                   // // if delete the comment
-                  // getNotif(fullpathname3)
+                  // getJSON(fullpathname3)
                   // .then(notif => {
                   //    var index = -1;
                   //    var filteredObj = notif.find(function (item, i) {
@@ -644,14 +764,6 @@ app.route('/event/:ecode/:postid')
                   // }).catch(err => console.error('885 => ', err))
 
                }
-               console.log('scode: ', scode);
-               fs.writeFile(fullpathname, JSON.stringify(data), err => {
-                  if (err) throw err
-                  // when send comment, sen aldo username and msg !!!!!!!!!
-                  res.json({
-                     status: scode
-                  })
-               })
             })
          }
          else {
@@ -739,8 +851,7 @@ app.route('/edit/:username')
             .then(result => {
                if (result) {
                   biography = result.biography
-                  console.log(biography);
-                  fullpathname = 'src/users/' + req.params.username + '/profile.json'
+                  fullpathname = 'forbidden/users/' + req.params.username + '/profile.json'
                   isfileexist = fs.existsSync(fullpathname);
                   isme = true
                   if (isfileexist) {
@@ -788,26 +899,24 @@ app.route('/edit/:username')
 
             if (username !== m_username) {
                // update db & json
-               fullpathname = 'src/users/' + req.params.username + '/profile.json'
-               // fullpathname = 'src/posts/' + 'post_' + result[0].postid + '.json'
+               fullpathname = 'forbidden/users/' + req.params.username + '/profile.json'
+               // fullpathname = 'forbidden/posts/' + 'post_' + result[0].postid + '.json'
                fs.readFile(fullpathname, (err, data) => {
                   if (err) {
                      res.end('read file error\n' + err)
                   }
                   else {
                      data = JSON.parse(data)
-                     console.log(data);
                      data.username = m_username
                      data.updatedAt = new Date()
                      fs.writeFile(fullpathname, JSON.stringify(data), (err) => {
                         if (err) throw err;
 
                         // rename user's own folder
-                        oldpath = 'src/users/' + req.params.username
-                        newpath = 'src/users/' + m_username
+                        oldpath = 'forbidden/users/' + req.params.username
+                        newpath = 'forbidden/users/' + m_username
                         fs.rename(oldpath, newpath, err => {
                            if (err) throw err
-                           console.log('renamed');
                         })
                      })
                   }
@@ -868,7 +977,7 @@ app.route('/follow/:username')
          })
       }
       else {
-         pathname = 'src/users/'
+         pathname = 'forbidden/users/'
          fullpathname1 = pathname + req.params.username + "/profile.json"
          fullpathname2 = pathname + req.session.username + "/profile.json"
          fullpathname3 = pathname + req.params.username + "/notifications.json"
@@ -899,7 +1008,7 @@ app.route('/follow/:username')
                      data2.following.count--
 
                      // delete notif
-                     getNotif(fullpathname3)
+                     getJSON(fullpathname3)
                         .then(notif => {
                            var index = -1;
                            var filteredObj = notif.find(function (item, i) {
@@ -921,7 +1030,7 @@ app.route('/follow/:username')
                      m_var = 2
 
                      // send notif
-                     getNotif(fullpathname3)
+                     getJSON(fullpathname3)
                         .then(notif => {
                            notifObj = {
                               nid: notif.length + 1,
@@ -969,7 +1078,7 @@ app.route('/delete/:postid')
                      Post.deleteOne({ postid: req.params.postid })
                         .then(mresult => {
                            if (result) {
-                              fullpathname = 'src/posts/post_' + req.params.postid + '.json'
+                              fullpathname = 'forbidden/posts/post_' + req.params.postid + '.json'
                               fs.unlink(fullpathname, err => {
                                  if (err) throw err
                                  res.json({ status: 1 })
@@ -1019,7 +1128,7 @@ app.route('/save/:postid')
          })
       }
       else {
-         pathname = 'src/users/'
+         pathname = 'forbidden/users/'
          fullpathname = pathname + req.session.username + "/saved.json"
          if (fs.existsSync(fullpathname) && fs.existsSync(pathname)) {
             fs.readFile(fullpathname, (err, data) => {
@@ -1038,7 +1147,6 @@ app.route('/save/:postid')
                      return i;
                   }
                });
-               console.log('index: ' + index);
                if (index > -1 && !iserr) {
                   data.splice(index, 1)
                   m_var = 2
@@ -1057,7 +1165,6 @@ app.route('/save/:postid')
                }
                fs.writeFile(fullpathname, JSON.stringify(data), err => {
                   if (err) throw err
-                  console.log('mvar: ' + m_var);
                   res.json({ status: m_var })
                })
             })
@@ -1069,6 +1176,7 @@ app.route('/save/:postid')
          }
       }
    })
+
 app.use((req, res, next) => {
    res.status(404).send("Sorry can't find that or i'm working on it");
 });

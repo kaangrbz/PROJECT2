@@ -138,35 +138,29 @@
                     if(lnd[i][0]) { %> <img class="like" src="/img/arrow2.svg" alt="like">
                     <% } else { %>
                       <img class="like" src="/img/arrow.svg" alt="like">
-                      <% } if(lnd[i][1]) { %> <img class="dislike"  src="/img/arrow2.svg" alt="dislike">
+                      <% } if(lnd[i][1]) { %> <img class="dislike" src="/img/arrow2.svg" alt="dislike">
                         <% } else { %>
                           <img class="dislike" src="/img/arrow.svg" alt="dislike">
-                          <% } %>
-
-                            <img class="share" src="/img/share.svg" alt="">
-
-                            <% } else{ %>
+                          <% } } else{ %>
                               <img class="like" src="/img/arrow.svg" alt="">
                               <img class="dislike" src="/img/arrow.svg" alt="">
-                              <img class="share" src="/img/share.svg" alt="">
                               <% } %>
                 </div>
 
                 <div class="buttons">
-                  <span class="likes<%= data[i].postid %>">
+                  +<span class="likes<%= data[i].postid %>">
                     <%= (locals.counts[i]) ? counts[i][0] : '' %>
                   </span>
                   /
-                  <span class="dislikes<%= data[i].postid %>">
+                  -<span class="dislikes<%= data[i].postid %>">
                     <%= (locals.counts[i]) ? counts[i][1] : '' %>
                   </span>
                 </div>
                 <div class="comments">
+                  <div class="comment">
+                  </div>
                 </div>
-                <div class="comment" style="display: none;">
-                  <span class="uname">test username</span>
-                  <span class="comment">test commeent</span>
-                </div>
+
                 <div class="sendcomment">
                   <form>
                     <input type="text">

@@ -395,9 +395,9 @@ body {
         }
         .buttons {
           margin-bottom: 5px;
-          max-width: 120px;
-          padding: 10px;
-          background-color: rgba($color: #727272, $alpha: 1);
+          max-width: 80px;
+          padding: 6px;
+          background-color: rgba($color: #bbbbbb, $alpha: 1);
           &:nth-child(even){
             background-color: rgba($color: #5a5a5a, $alpha: 1);
             color: rgba(34, 34, 34, 0.86);
@@ -406,7 +406,8 @@ body {
             justify-content: center;
             margin-top: -12px;
             margin-left: -10px;
-            border-radius: 20px;
+            border-radius: 10px;
+            flex-direction: row;
           }
           border-radius: 30px;
           // box-shadow: 0 2px 6px 1px rgba(243, 243, 243, 0.15);
@@ -414,6 +415,7 @@ body {
           display: flex;
           justify-content: space-evenly;
           align-items: center;
+          flex-direction: column;
            img{
             max-width: 17px;
             max-height: 17px;
@@ -423,6 +425,7 @@ body {
           }
           .like{
             transform: rotateZ(-90deg);
+            margin-bottom: 5px;
           }
           .liked{
             transform: rotateZ(90deg);
@@ -437,6 +440,15 @@ body {
             font-size: 15px;
             .uname {
               font-weight: 500;
+              margin-right: 5px;
+            }
+            .cmsg {
+              margin-right: 5px;
+            }
+            .cdate{
+              font-style: italic;
+              font-size: 13px;
+              opacity: .9;
             }
           }
         }

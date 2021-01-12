@@ -6,7 +6,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="/css/style.css">
 	<script src="/js/sweetalert2.all.min.js"></script>
-	<title>PROFILE PAGE</title>
+	<title>
+		<%= (locals.u2 ) ? u2 : 'Profile' %>
+	</title>
 </head>
 
 <body>
@@ -14,7 +16,7 @@
 		<div class="header">
 			<div class="headercont">
 				<div class="logo">
-					<a href="/"><img src="img/profile2.jpg" alt="logo error"></a>
+					<a href="/">PROJECT2</a>
 				</div>
 				<div class="search">
 					<input type="text" name="search" id="search" placeholder="search box to here">
@@ -48,8 +50,9 @@
 					</label>
 					<a class="logout" href="/logout"><i class="fas fa-sign-out-alt"></i></a>
 					<div class="profile">
-						<a href="<%= (locals.username && isme) ? 'javascript:void(0)' : username %>"><img src="img/profile1.jpg"
-								alt=""></a>
+						<a href="<%= (locals.u1 && isme) ? 'javascript:void(0)' : username %>">
+							<img src="img/profile1.jpg" alt="">
+						</a>
 					</div>
 				</div>
 			</div>
@@ -61,94 +64,53 @@
 					<div class="puser">
 						<div class="pname">
 							<div>
-								<img src="//picsum.photos/80/80" alt="">
+								<img src="//picsum.photos/500/500" alt="">
 								<div>
-									<a href="javascript:void(0)">
-										<%= (locals.username) ? username : 'null' %>
-									</a>
+									<span>
+										<%= (locals.u2) ? u2 : 'null' %>
+									</span>
 								</div>
 							</div>
 							<div class="pbtn">
-								<% if(locals.isme && isme){ %> <a href="/edit/<%= (locals.username) ? username : 'null' %>">Edit
+								<% if(locals.isme && isme){ %> <a href="/edit/<%= (locals.u1) ? u1 : 'null' %>">Edit
 										profile</a>
 									<% } else{ %>
-										<a class="follow" data-username="<%= (locals.username) ? username : 'null' %>" ><%= (locals.isfollowed && isfollowed) ? 'Unfollow' : 'Follow' %></a>
+										<a class="follow" data-username="<%= (locals.u2) ? u2 : 'null' %>">
+											<%= (locals.isfollowed && isfollowed) ? 'Unfollow' : 'Follow' %>
+										</a>
 										<% } %>
 
 							</div>
 						</div>
-						<div class="pstatus">
-							<a href="#">
-								<div class="pcount">23</div>posts
-							</a>
-							<a href="#">
-								<div class="pfollowers">
-									<%= (locals.data) ? data.followers.count : 'null' %>
-								</div>followers
-							</a>
-							<a href="#">
-								<div class="pfollowings">
-									<%= (locals.data) ? data.following.count : 'null' %>
-								</div>following
-							</a>
-						</div>
-					</div>
-					<div class="post" data-post-id="123456">
-						<div class="header">
-							<div class="user">
-								<img src="//picsum.photos/80/80" alt="">
-								<div>
-									<a href="#">test name</a>
-									<div class="pdate">1 days ago</div>
+						<%= (locals.data) ? data.fullname : 'null' %>
+							<br>
+							<%= (locals.bio) ? bio : 'null' %>
+								<div class="pstatus">
+									<a href="#">
+										<div class="pcount">23</div>posts
+									</a>
+									<a href="#">
+										<div class="pfollowers">
+
+										</div>followers
+									</a>
+									<a href="#">
+										<div class="pfollowings">
+
+										</div>following
+									</a>
 								</div>
-							</div>
-							<div class="more" id="more">
-								<i class="fas fa-ellipsis-h"></i>
-								<div class="options">
-									<div class="arrow"> </div>
-									<ul>
-										<li><a href="javascript:void(0)">Paylas</a></li>
-										<li><a href="javascript:void(0)">Sikayet et</a></li>
-										<li><a href="javascript:void(0)">Kaydet</a></li>
-									</ul>
-								</div>
-							</div>
-						</div>
-						<div class="article">
-							<p class="ptext">
-								1Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum, pariatur
-								quibusdam?
-								Maxime dicta repellendus doloribus beatae. Inventore quia quis reprehenderit assumenda,
-								autem a ipsam ipsum dolorum officiis sit, dignissimos nam!
-							</p>
-							<div class="pmedia">
-								<img src="/img/bridge.jpg" alt="post img">
-							</div>
-						</div>
-						<div class="buttons">Like | Dislike/none | Share | Save</div>
-						<div class="likes">1k likes</div>
-						<div class="comments">
-							<div class="comment">
-								<span class="uname">test username</span>
-								<span class="comment">test commeent</span>
-							</div>
-						</div>
-						<div class="sendcomment">
-							<form action="">
-								<input type="text">
-								<button type="button" id="sendcomm">Send</button>
-							</form>
-						</div>
 					</div>
+
 				</div>
+				<div class="cright">right</div>
 			</div>
-			<div class="cright">right</div>
 		</div>
-	</div>
-	<i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
-	<script src="js/jquery.min.js"></script>
-	<script src="js/fontawesome.js"></script>
-	<script src="js/index.js"></script>
+		<i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
+		<script src="/js/jquery.min.js"></script>
+		<script src="/js/fontawesome.js"></script>
+		<script src="/js/index.js"></script>
+		<script src="/js/post.js"></script>
 </body>
 
 </html>

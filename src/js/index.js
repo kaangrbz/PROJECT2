@@ -166,14 +166,21 @@ $('.send').on('click', (e) => {
   postid = $(e.currentTarget).parent().parent().parent().attr('data-post-id')
   msg = $(e.currentTarget).prev().val() || 0
   url = '/event/3/' + postid
+  c = $('div[data-post-id=' + postid + '] .comments')
+  console.log(c);
   if (msg.length > 0) {
     data = { msg }
     $.post(url, data, res => {
-
       input = $('div[data-post-id=' + postid + '] input[type=text]');
       console.log(input);
       if (res.status === 0) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' }) }
       else if (res.status === 1) {
+        comment = '<div class="comment"><span class="uname">' + res.username + '</span><span class="cmsg">' + res.msg + '</span><span class="cdate">' + res.date + '</span></div>'
+        c.append(comment);
+        input.val('')
+      }
+      else {
+        console.log('else');
       }
     });
   }
