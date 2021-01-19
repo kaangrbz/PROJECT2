@@ -172,7 +172,7 @@ app.route('/login')
                req.session.username = result.username;
                req.session.email = result.email;
                req.session.fullname = result.fullname;
-               res.redirect('/kaan1')
+               res.redirect('/')
             }
          })
       }
@@ -1156,6 +1156,6 @@ app.listen(port, () => {
    console.log('Server working at http://localhost:' + port)
 })
 
-// 17.01.2021 1223
-
+// 17.01.2021 00:00 1223
 // 19.01.2021 02:59 1183
+// 20.01.2021 02:16 1163
