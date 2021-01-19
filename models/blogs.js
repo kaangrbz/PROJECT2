@@ -57,25 +57,21 @@ const userSchema = new Schema({
 const User = mongoose.model('User', userSchema);
 
 const postSchema = new Schema({
+    userid: {
+        type: Number,
+        required: true,
+        unique: false,
+    },
     postid: {
         type: Number,
         required: true,
         unique: true,
     },
-    username: {
-        type: String,
-        require: true,
-        unique: false,
-    },
-    fullname: {
-        type: String,
-        require: true,
-    },
     article: {
         type: String,
         required: false,
     },
-    media: {
+    attacments: {
         type: Array,
         required: false,
         default: []

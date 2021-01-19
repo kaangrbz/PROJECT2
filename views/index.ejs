@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/functions.js"></script>
-  <title>INDEX PAGE</title>
+	<link rel="icon" href="data:,">
+  <title>PROJECT2</title>
 </head>
 
 <body>
@@ -31,7 +31,7 @@
             <div>
               <% if (locals.notif){ %>
                 <ul>
-                  <% if(notif.length>0){ notif.slice(-5).forEach(n =>{ %>
+                  <% if(notif.length>0){ console.log('notif'); notif.slice(-5).forEach(n =>{ %>
                     <li>
                       <% switch (n.ncode) { case 1: %>
                         <a href="post/<%= n.postid %>"><b>
@@ -44,7 +44,7 @@
                           <% break; case 3: %>
                             <a href="post/<%= n.postid %>"><b>
                                 <%= n.nuser %>
-                              </b>comment to your post</a>
+                              </b>wrote comment to your post</a>
                             <% break; default: break; } %>
                               <span class="ntime">
                                 <%= n.ntime %>
@@ -65,125 +65,40 @@
           </label>
           <a class="logout" href="/logout"><i class="fas fa-sign-out-alt"></i></a>
           <div class="profile">
-            <a href="/<%= (locals.username) ? username : 'null' %>"><img src="img/profile1.jpg" alt=""></a>
+            <a href="/<%= (locals.username) ? username : 'javascript:void(0)' %>"><img src="img/profile1.jpg" alt="right"></a>
           </div>
         </div>
       </div>
     </div>
     <div class="center">
       <div class="centercont">
-        <div class="posts">
-          <div class="sendpost">
-            <div class="cont">
-              <h3>
-                <%= (locals.message) ? message : '' %>
-              </h3>
-              <button class="preview" id="preview">Preview</button>
-              <form action="/post" method="POST" enctype='application/json'>
-                <input disabled name="media" type="file" placeholder="Tags (optional)">
-                <input name="tags" type="text" placeholder="tags exp: html css asd qwe">
-                <textarea name="article" cols="30" rows="10"></textarea>
-                <button type="submit">POST</button>
-              </form>
-            </div>
+        <div class="sendpost">
+          <div class="cont">
+            <div class="msg"></div>
+            <button class="preview" id="preview">Preview</button>
+            <form action="" onsubmit="return false" enctype='application/json' id="postform">
+              <input disabled name="media" type="file" placeholder="Tags (optional)">
+              <input name="tags" type="text" placeholder="tags exp: html css asd qwe">
+              <textarea name="article" cols="30" rows="10"></textarea>
+              <button type="submit" id="postbtn">POST</button>
+            </form>
           </div>
-          <% if(locals.data && data.length>0){
-            for (i=0; i< data.length;i++){ %>
+        </div>
 
-              <div class="post" data-post-id="<%= data[i].postid %>">
-                <div class="header">
-                  <div class="user">
-                    <img src="//picsum.photos/80/80" alt="">
-                    <div>
-                      <a href="/<%= data[i].username %>">
-                        <%= data[i].username %>
-                          <% if(data[i].verified){ %>
-                            <div class="verified">
-                              <i class="far fa-check-circle"></i>
-                            </div>
-                            <% } %>
-                      </a>
-                      <div class="pdate">
-                        <%= (locals.date) ? date[i] : '' %>
-                      </div>
-                    </div>
-                  </div>
+        <div class="posts">
 
-                  <div class="more">
-                    <i class="fas fa-ellipsis-h"></i>
-                  </div>
-                  <div class="options">
-                    <div class="arrow"> </div>
-                    <div>
-                      <% if(locals.isme && isme[i]){ %>
-                        <a class="del" href="javascript:void(0)"><img src="/img/delete.svg" alt="">Delete</a>
-                        <% } %>
-                          <a href="javascript:void(0)"><img src="/img/share.svg" alt="">Share</a>
-                          <a href="javascript:void(0)"><img src="/img/report.svg" alt="">Report</a>
-                          <a class="save" href="javascript:void(0)"><img src="/img/save.svg" alt="">Save</a>
-                    </div>
-                  </div>
-
-                </div>
-                <div class="article">
-                  <p class="ptext">
-                    <%= data[i].article %>
-                  </p>
-                  <div class="pmedia" style="display: none;">
-                    <img src="" alt="post img">
-                  </div>
-                </div>
-                <div class="buttons">
-                  <% if(locals.lnd && lnd.length> 0){
-                    if(lnd[i][0]) { %> <img class="like" src="/img/arrow2.svg" alt="like">
-                    <% } else { %>
-                      <img class="like" src="/img/arrow.svg" alt="like">
-                      <% } if(lnd[i][1]) { %> <img class="dislike" src="/img/arrow2.svg" alt="dislike">
-                        <% } else { %>
-                          <img class="dislike" src="/img/arrow.svg" alt="dislike">
-                          <% } } else{ %>
-                              <img class="like" src="/img/arrow.svg" alt="">
-                              <img class="dislike" src="/img/arrow.svg" alt="">
-                              <% } %>
-                </div>
-
-                <div class="buttons">
-                  +<span class="likes<%= data[i].postid %>">
-                    <%= (locals.counts[i]) ? counts[i][0] : '' %>
-                  </span>
-                  /
-                  -<span class="dislikes<%= data[i].postid %>">
-                    <%= (locals.counts[i]) ? counts[i][1] : '' %>
-                  </span>
-                </div>
-                <div class="comments">
-                  <div class="comment">
-                  </div>
-                </div>
-
-                <div class="sendcomment">
-                  <form>
-                    <input type="text">
-                    <button type="button" class="send">Send</button>
-                  </form>
-                </div>
-              </div>
-              <% } } else{ %>
-                no post
-                <% } %>
         </div>
       </div>
       <div class="cright">right</div>
+      <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
     </div>
   </div>
-  <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
+  <script src="/js/theme.js"></script>
   <script src="js/jquery.min.js"></script>
   <script src="js/fontawesome.js"></script>
   <script src="/js/sweetalert2.all.min.js"></script>
   <script src="js/index.js"></script>
-  <script>
-
-  </script>
+	<script src="/js/post.js"></script>
 </body>
 
 </html>

@@ -1,39 +1,3 @@
-function setCookie(c_name, value, exdays) {
-  var exdate = new Date();
-  exdate.setDate(exdate.getDate() + exdays);
-  var c_value = escape(value) + ((exdays == null) ? "" : "; expires=" + exdate.toUTCString());
-  document.cookie = c_name + "=" + c_value;
-}
-function getCookie(c_name) {
-  var i, x, y, ARRcookies = document.cookie.split(";");
-  for (i = 0; i < ARRcookies.length; i++) {
-    x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
-    y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
-    x = x.replace(/^\s+|\s+$/g, "");
-    if (x == c_name) {
-      return unescape(y);
-    }
-  }
-}
-
-
-if (getCookie('mode') == 'dark') {
-  document.querySelector("body").className = 'dark';
-  document.getElementById('mode-btn').checked = true;
-}
-else if (getCookie('mode') === undefined) {
-  document.querySelector("body").className = 'dark';
-  document.getElementById('mode-btn').checked = true;
-}
-else {
-  document.querySelector("body").className = '';
-  document.getElementById('mode-btn').checked = false;
-}
-
-document.getElementById('mode-btn').addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-  setCookie('mode', document.body.classList, 9999999)
-})
 
 const limit = 400;
 window.onload = function setblockqu() {
@@ -73,7 +37,6 @@ function topFunction() {
   container.scrollTop = 0;
   document.documentElement.scrollTop = 0;
 }
-
 /* // random cool bg (optional)
 function randombgcolor() {
     var x = Math.floor(Math.random() * 256);
@@ -86,7 +49,6 @@ setInterval(randombgcolor,1100);
 */
 
 $('.notif').on('click', (e) => {
-  console.log('ee');
   if ($('.notifications').css('display') == 'none') {
     $('.notifications').show(300)
   }
@@ -97,7 +59,11 @@ $('.notif').on('click', (e) => {
 
 $('.more').on('click', (e) => {
 
-  postid = $(e.currentTarget).parent().parent().attr('data-post-id')
+  more(e.currentTarget)
+
+})
+function more(e) {
+  postid = $(e).parent().parent().attr('data-post-id')
   opt = $('div[data-post-id=' + postid + '] .options');
   if (opt.css('display') == 'none') {
     opt.show(300)
@@ -105,38 +71,46 @@ $('.more').on('click', (e) => {
   else {
     opt.hide(300)
   }
-
-})
+}
 
 $('.like').on('click', (e) => {
-  postid = $(e.currentTarget).parent().parent().attr('data-post-id')
-  url = '/event/1/' + postid
+  like(e.currentTarget)
+});
+function like(e) {
+  postid = $(e).parent().parent().attr('data-post-id')
+  url = '/1/' + postid + '/event'
   $.post(url, res => {
+
+    console.log('likes status => ', res.status);
+
     c = $('.likes' + postid)[0]
     d = $('.dislikes' + postid)[0]
     f = $('div[data-post-id=' + postid + '] .dislike')
     if (res.status === 0) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' }) }
     else if (res.status === 1) {
       c.innerHTML = (Number(c.textContent) + 1)
-      e.currentTarget.src = '/img/arrow2.svg'
+      e.src = '/img/arrow2.svg'
     }
     else if (res.status === 2) {
       c.innerHTML = (Number(c.textContent) - 1)
-      e.currentTarget.src = '/img/arrow.svg'
+      e.src = '/img/arrow.svg'
     }
     else if (res.status === 3) {
       c.innerHTML = (Number(c.textContent) + 1)
       d.innerHTML = (Number(d.textContent) - 1)
-      e.currentTarget.src = '/img/arrow2.svg'
+      e.src = '/img/arrow2.svg'
       f.attr('src', '/img/arrow.svg')
     }
-    else c.innerHTML = ("??")
+    else console.log('else1 => ', res.status);
   });
+}
+$('.dislike').on('click', (e) => {
+  dislike(e.currentTarget)
 });
 
-$('.dislike').on('click', (e) => {
-  postid = $(e.currentTarget).parent().parent().attr('data-post-id')
-  url = '/event/2/' + postid
+function dislike(e) {
+  postid = $(e).parent().parent().attr('data-post-id')
+  url = '/2/' + postid + '/event'
   $.post(url, res => {
     d = $('.dislikes' + postid)[0]
     c = $('.likes' + postid)[0]
@@ -146,26 +120,30 @@ $('.dislike').on('click', (e) => {
     }
     else if (res.status === 1) {
       d.innerHTML = (Number(d.textContent) + 1)
-      e.currentTarget.src = '/img/arrow2.svg'
+      e.src = '/img/arrow2.svg'
     }
     else if (res.status === 2) {
       d.innerHTML = (Number(d.textContent) - 1)
-      e.currentTarget.src = '/img/arrow.svg'
+      e.src = '/img/arrow.svg'
     }
     else if (res.status === 3) {
       d.innerHTML = (Number(d.textContent) + 1)
       c.innerHTML = (Number(c.textContent) - 1)
-      e.currentTarget.src = '/img/arrow2.svg'
+      e.src = '/img/arrow2.svg'
       f.attr('src', '/img/arrow.svg')
     }
-    else d.innerHTML = ("??")
+    else console.log('else2 => ', res.status);
   });
-});
+}
 
 $('.send').on('click', (e) => {
-  postid = $(e.currentTarget).parent().parent().parent().attr('data-post-id')
-  msg = $(e.currentTarget).prev().val() || 0
-  url = '/event/3/' + postid
+  send(e.currentTarget)
+});
+
+function send(e) {
+  postid = $(e).parent().parent().parent().attr('data-post-id')
+  msg = $('div[data-post-id=' + postid + '] input[type=text]').val() || ''
+  url = '/3/' + postid + '/event'
   c = $('div[data-post-id=' + postid + '] .comments')
   console.log(c);
   if (msg.length > 0) {
@@ -187,7 +165,7 @@ $('.send').on('click', (e) => {
   else {
     console.log('write comment');
   }
-});
+}
 
 $.urlParam = function (name) {
   var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
@@ -201,11 +179,16 @@ if ($.urlParam('status') == 'ok') {
 }
 
 $('.follow').on('click', (e) => {
-  username = $(e.currentTarget).data('username')
+  follow(e.currentTarget)
+});
+function follow(e) {
+  username = $(e).data('username')
   f1 = document.querySelector('.pfollowers')
   f2 = document.querySelector('.pfollowings')
-  $.post('/follow/' + username, res => {
-    console.log('follow status: ' + res.status);
+  url = '/' + username + '/follow/'
+  console.log('follow url => ', url);
+  $.post(url, res => {
+    console.log('follow res: ', res);
     if (res.status === 0) {
       Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', })
         .then((result) => {
@@ -214,21 +197,25 @@ $('.follow').on('click', (e) => {
         })
     }
     else if (res.status === 1) {
-      $('.follow').html('Follow')
-      f1.innerHTML = Number(f1.textContent) - 1
+      $('.follow').html('Unfollow')
+      f1.innerHTML = Number(f1.textContent) + 1
     }
     else if (res.status === 2) {
-      f1.innerHTML = Number(f1.textContent) + 1
-      $('.follow').html('Unfollow')
+      f1.innerHTML = Number(f1.textContent) - 1
+      $('.follow').html('Follow')
     }
-    else {
-      console.log('else');
+    else if (res.status === 3) {
+      Swal.fire({ icon: 'error', title: 'Oops...', text: res.message, })
     }
   });
-});
+}
 
 $('.del').on('click', e => {
-  val = $(e.currentTarget).parent().parent().parent().parent().attr('data-post-id');
+  del(e.currentTarget)
+})
+
+function del(e) {
+  val = $(e).parent().parent().parent().parent().attr('data-post-id');
   url = '/delete/' + val
   $.post(url, res => {
     if (res.status === 0) {
@@ -242,14 +229,17 @@ $('.del').on('click', e => {
       Swal.fire({ icon: 'error', title: 'Heyy!', text: 'Unauthorized process', })
     }
   })
-})
-
+}
 
 $('.save').on('click', e => {
-  val = $(e.currentTarget).parent().parent().parent().parent().attr('data-post-id');
+  save(e.currentTarget)
+})
+function save(e) {
+  val = $(e).parent().parent().parent().parent().attr('data-post-id');
   url = '/save/' + val
   $.post(url, res => {
-    console.log('save status: ', res.status);
+    console.log('save status: ', res);
+    console.log('e=>', e);
     if (res.status === 0) {
       Swal.fire({
         icon: 'error',
@@ -258,10 +248,17 @@ $('.save').on('click', e => {
       })
     }
     else if (res.status === 1) {
-      $(e.currentTarget).html('<img src="/img/saved.svg" alt="">Saved')
+      $(e).html('<img src="/img/saved.svg" alt="">Saved')
     }
     else if (res.status === 2) {
-      $(e.currentTarget).html('<img src="/img/save.svg" alt="">Save')
+      $(e).html('<img src="/img/save.svg" alt="">Save')
+    }
+    else if (res.status === 3) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: res.message,
+      })
     }
     else {
       Swal.fire({
@@ -270,6 +267,118 @@ $('.save').on('click', e => {
         text: 'something happened',
       })
     }
-
   })
-})
+}
+
+$("#textarea").on('keyup', function () {
+  $("#count").text("Characters left: " + (500 - $(this).val().length));
+});
+
+$('#update').on('click', (e) => {
+  update(e.currentTarget)
+});
+function update(e) {
+  $.post('/edit/', $('#updateform').serialize(), res => {
+    $(e).attr('disabled', 'disabled')
+    $('.msg').empty()
+    i = $('input[type=text][name=username]')
+    adiv = $('div.alts')
+    adiv.empty()
+    var y = $(window).scrollTop();
+    if (res.status === 0) {
+      Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', })
+        .then((result) => {
+          if (result.isConfirmed)
+            window.location.href = '/login'
+        })
+    }
+    else if (res.status === 1) {
+      $('.msg').html('<h3 class="success">Successfuly updated.</h3>').show(300)
+      $(window).scrollTop(y - 50);
+      $(e).removeAttr('disabled')
+    }
+    else if (res.status === 2) {
+      $('.msg').html('<h3 class="danger">' + res.message + '</h3>').show(300)
+      $(window).scrollTop(y - 50);
+      var counter = 5;
+      var interval = setInterval(function () {
+        counter--;
+        $(e).html('Update in (' + counter + 's)')
+        if (counter == 0) {
+          $(e).removeAttr('disabled')
+          $(e).html('Update')
+          clearInterval(interval);
+        }
+      }, 1000);
+    }
+    else if (res.status === 3) {
+      let alts = res.alternatives
+      f = true
+      $('.msg').html('<h3 class="danger">' + res.message + '</h3>').show(300)
+      $(window).scrollTop(y - 50);
+      alts.forEach(alt => {
+        if (alt !== null) {
+          if (f) {
+            f = false
+            adiv.append('Some alternatives: ')
+          }
+          a = '<span class="alt">' + alt + '</span>'
+          adiv.append(a)
+        }
+      })
+      $('.alt').on('click', (e) => {
+        i.val(e.currentTarget.textContent) // i => input 
+      })
+      $(e).removeAttr('disabled')
+    }
+  });
+}
+
+
+$('#postbtn').on('click', (e) => {
+  addpost(e.currentTarget)
+});
+function addpost(e) {
+  $.post('/post/', $('#postform').serialize(), res => {
+    $(e).attr('disabled', 'disabled')
+    $('.msg').empty().hide()
+    var y = $(window).scrollTop();
+    var counter = 5;
+    console.log('post res => ', res);
+    if (res.status === 0) {
+      Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', })
+        .then((result) => {
+          if (result.isConfirmed)
+            window.location.href = '/login'
+        })
+    }
+    else if (res.status === 1) {
+      $('.msg').html('<h3 class="success">Successfuly added post.</h3>').show(300)
+      var interval = setInterval(function () {
+        $(e).html('Post in (' + counter + 's)')
+        if (counter == 0) {
+          $(e).removeAttr('disabled')
+          $(e).html('Post')
+          clearInterval(interval);
+        }
+        counter--;
+      }, 1000);
+    }
+    else if (res.status === 2) {
+      $('.msg').html('<h3 class="danger">' + res.message + '</h3>').show(300)
+      $(window).scrollTop(y - 150);
+      var interval = setInterval(function () {
+        $(e).html('Post in (' + counter + 's)')
+        if (counter == 0) {
+          $(e).removeAttr('disabled')
+          $(e).html('Post')
+          clearInterval(interval);
+        }
+        counter--;
+      }, 1000);
+    }
+    else if (res.status === 3) {
+
+    }
+  });
+}
