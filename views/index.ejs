@@ -3,10 +3,11 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/css/style.css">
-	<link rel="icon" href="data:,">
-  <title>PROJECT2</title>
+  <%- include('inc/metatag.ejs') %>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <title>PROJECT2</title>
 </head>
 
 <body>
@@ -14,58 +15,37 @@
     <div class="header">
       <div class="headercont">
         <div class="logo">
-          <a href="/">PROJECT2</a>
+          <a href="/">
+            <%- include('inc/logo.ejs') %>
+          </a>
         </div>
-        <div class="search">
+        <div class="search" title="Search something">
           <input type="text" name="search" id="search" placeholder="search box to here">
           <span class="searchbtn">
             <i class="fas fa-search"></i>
           </span>
         </div>
         <div class="right">
-          <div class="notif">
+          <div class="notif" title="Notifications">
             <i class="far fa-bell" id="bell"></i>
+            <div class="ncount">2</div>
           </div>
           <div class="notifications">
-            <div class="arrow"></div>
-            <div>
-              <% if (locals.notif){ %>
-                <ul>
-                  <% if(notif.length>0){ console.log('notif'); notif.slice(-5).forEach(n =>{ %>
-                    <li>
-                      <% switch (n.ncode) { case 1: %>
-                        <a href="post/<%= n.postid %>"><b>
-                            <%= n.nuser %>
-                          </b>liked your post </a>
-                        <% break; case 2: %>
-                          <a href="/<%= n.nuser %>"><b>
-                              <%= n.nuser %>
-                            </b> started to follow you</a>
-                          <% break; case 3: %>
-                            <a href="post/<%= n.postid %>"><b>
-                                <%= n.nuser %>
-                              </b>wrote comment to your post</a>
-                            <% break; default: break; } %>
-                              <span class="ntime">
-                                <%= n.ntime %>
-                              </span>
-                    </li>
-                    <% }) } else{ %>
-                      <li><a href="javascript:void(0)">There is no notif yet.</a></li>
-                      <% } %>
-                </ul>
-                <% } %>
-            </div>
+            <img class="notifloading" src="/img/loading.gif" alt="loadinggif">
+            <ul>
+            </ul>
           </div>
+
 
           <label class="mode-control">
             <input type="checkbox" id="mode-btn">
             <span><i class="fas fa-moon"></i></span>
             <span><i class="fas fa-sun"></i></span>
           </label>
-          <a class="logout" href="/logout"><i class="fas fa-sign-out-alt"></i></a>
+          <a class="logout" href="/logout" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
           <div class="profile">
-            <a href="/<%= (locals.username) ? username : 'javascript:void(0)' %>"><img src="img/profile1.jpg" alt="right"></a>
+            <a href="/<%= (locals.username) ? username : 'javascript:void(0)' %>"><img src="img/profile1.jpg"
+                alt="right"></a>
           </div>
         </div>
       </div>
@@ -75,7 +55,6 @@
         <div class="sendpost">
           <div class="cont">
             <div class="msg"></div>
-            <button class="preview" id="preview">Preview</button>
             <form action="" onsubmit="return false" enctype='application/json' id="postform">
               <input disabled name="media" type="file" placeholder="Tags (optional)">
               <input name="tags" type="text" placeholder="tags exp: html css asd qwe">
@@ -88,17 +67,26 @@
         <div class="posts">
 
         </div>
+        <div class="loading">
+          <img src="/img/bird.gif" alt="loadinggif">
+        </div>
       </div>
+
       <div class="cright">right</div>
+
+
       <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
     </div>
   </div>
+
   <script src="/js/theme.js"></script>
   <script src="js/jquery.min.js"></script>
   <script src="js/fontawesome.js"></script>
   <script src="/js/sweetalert2.all.min.js"></script>
   <script src="js/index.js"></script>
-	<script src="/js/post.js"></script>
+  <script src="/js/post.js"></script>
+  <script src="/js/addpost.js"></script>
+  <script src="/js/logo.js"></script>
 </body>
 
 </html>

@@ -32,6 +32,12 @@ body {
   color: #222;
   transition: 500ms all;
 }
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+$svgspinsec: 14s;
 .cont {
   width: 100%;
   height: 100%;
@@ -43,20 +49,66 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 0px;
     .logo {
+      display: block;
+      width: 100px;
+      svg {
+        animation: spin $svgspinsec infinite linear;
+        position: fixed;
+        top: 20px;
+        left: 40px;
+      }
+      // $octagonpx: 2px;
+      // .octagonWrap {
+      //   width: 90px;
+      //   height: 90px;
+      //   float: left;
+      //   position: relative;
+      //   overflow: hidden;
+      //   border: $octagonpx solid rgb(0, 0, 0);
+      // }
+      // .octagon {
+      //   position: absolute;
+      //   display: flex;
+      //   justify-content: center;
+      //   align-items: center;
+      //   overflow: hidden;
+      //   top: 0;
+      //   right: 0;
+      //   bottom: 0;
+      //   left: 0;
+      //   overflow: hidden;
+      //   transform: rotate(45deg);
+      //   background: transparent;
+      //   border: $octagonpx solid rgb(0, 0, 0);
+      // }
+      // .octagon:before {
+      //   position: absolute;
+      //   /* There needs to be a negative value here to cancel
+      //    * out the width of the border. It's currently -3px,
+      //    * but if the border were 5px, then it'd be -5px.
+      //    */
+      //   top: -$octagonpx;
+      //   right: -$octagonpx;
+      //   bottom: -$octagonpx;
+      //   left: -$octagonpx;
+      //   transform: rotate(45deg);
+      //   content: "";
+      //   border: inherit;
+      // }
       a {
-        font-size: 40px;
-        color: #121212;
-        text-decoration: none;
-        margin-left: 20px;
-        font-weight: 500;
-        font-family: "Raleway", sans-serif;
-        font-style: italic;
-        border: 2px solid #121212;
-        border-radius: 3px;
-        padding: 5px 7px;
-        transition: 200ms all;
+        display: block;
+
+        // font-size: 40px;
+        // color: #121212;
+        // text-decoration: none;
+        // margin-left: 20px;
+        // font-weight: 500;
+        // font-family: "Raleway", sans-serif;
+        // font-style: italic;
+        // border-radius: 3px;
+        // padding: 5px 7px;
+        // transition: 200ms all;
       }
       img {
         margin-left: 10px;
@@ -71,6 +123,7 @@ body {
     flex-direction: row;
     align-items: center;
     position: relative;
+    margin: 15px 15px 0 0;
     > * {
       margin-right: 15px;
     }
@@ -89,25 +142,54 @@ body {
       padding: 5px;
       cursor: pointer;
       font-size: 18px;
+      .ncount {
+        position: absolute;
+        right: -5px;
+        top: -5px;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+        background: red;
+        color: #f1f1f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
     .notifications {
       position: absolute;
-      top: calc(50% + 20px);
-      right: -10px;
+      top: -999px;
+      right: 10px;
       transform: translateX(-50%);
       min-width: 400px;
       max-width: 500px;
       max-height: 600px;
+      min-height: 100px;
       width: 100%;
+      margin: 0;
       margin-top: 10px;
       padding: 10px;
       padding-bottom: 5px;
+      padding-top: 0px;
       border-radius: 5px;
       background: #333;
       color: #f1f1f1;
       z-index: 99;
       display: none;
       align-items: center;
+      justify-content: space-between;
+      transition: 500ms all;
+      opacity: 0;
+      ul {
+        width: 100%;
+      }
+      .notifloading {
+        display: block;
+        width: 50px;
+        height: 50px;
+        margin: 0 auto;
+      }
       b {
         margin-right: 3px;
       }
@@ -123,12 +205,20 @@ body {
         transform: translateX(-50%);
       }
       li {
-        margin-bottom: 10px;
+        margin-bottom: 5px;
         display: flex;
         align-items: center;
         flex-direction: row;
+        justify-content: space-between;
+        i{
+          margin-left: 10px;
+          font-size: 40px;
+        }
       }
       a {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
         padding: 5px;
         padding-left: 0px;
         color: #f1f1f1;
@@ -142,12 +232,18 @@ body {
         margin-right: 3px;
       }
     }
+
+    .active {
+      display: flex;
+      opacity: 1 !important;
+      top: calc(50% + 20px) !important;
+    }
   }
   .search {
     position: relative;
     #search {
       padding: 8px 12px;
-      min-width: 300px;
+      width: 300px;
       background: #3d3d3d;
       color: #f1f1f1;
       font-family: "Work Sans";
@@ -192,12 +288,12 @@ body {
       }
     }
     .verified {
-      color: rgb(117, 27, 27)
+      color: rgb(8, 190, 245);
     }
     .centercont {
       min-width: 600px;
-      max-width: 600px;
       .sendpost {
+        margin-top: 20px;
         margin-bottom: 40px;
         input[type="file"] {
           padding: 0px;
@@ -301,8 +397,12 @@ body {
       }
       .posts {
         margin-bottom: 20px;
-
+        display: flex !important;
+        flex-direction: column;
+        justify-content: right;
         .post {
+          min-width: 600px;
+          max-width: 600px;
           margin-bottom: 50px;
           .header {
             display: flex;
@@ -310,7 +410,6 @@ body {
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
-
             position: relative;
             .more {
               position: absolute;
@@ -389,12 +488,12 @@ body {
             }
             img {
               max-width: 600px;
-              min-width: 600px;
+              width: 600px;
               border-radius: 5px;
             }
             video {
               max-width: 600px;
-              min-width: 600px;
+              width: 600px;
             }
           }
         }
@@ -446,6 +545,9 @@ body {
             .uname {
               font-weight: 500;
               margin-right: 5px;
+              .verified {
+                margin-left: 5px;
+              }
             }
             .cmsg {
               margin-right: 5px;
@@ -506,6 +608,21 @@ body {
     }
   }
 }
+.addpost {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 20px;
+  cursor: pointer;
+  transition: 100ms color;
+  color: #56a760;
+  &:hover {
+    color: #6ac574;
+  }
+  i {
+    font-size: 40px;
+  }
+}
 .loading {
   display: none;
   width: 100%;
@@ -514,8 +631,8 @@ body {
   justify-content: center;
   img {
     display: block;
-    max-width: 30px;
-    max-height: 30px;
+    max-width: 50px;
+    max-height: 50px;
   }
 }
 #count {
@@ -523,7 +640,7 @@ body {
   opacity: 0.9;
 }
 .msg {
-  >* {
+  > * {
     font-size: 18px;
     margin-bottom: 10px;
     font-weight: 300;
@@ -543,7 +660,7 @@ body {
     transition: 200ms all;
     border-bottom: 0px solid #353535;
     cursor: pointer;
-    &:hover{
+    &:hover {
       border-bottom: 2px solid #353535;
     }
   }
@@ -567,13 +684,19 @@ body.dark {
       color: #f1f1f1 !important;
     }
   }
-  
-  .verified {
-    color: rgb(63, 117, 27) !important;
-  }
-  .logout{
-    i{
+  .logout {
+    i {
       color: #f1f1f1;
+    }
+  }
+  .pstatus {
+    a {
+      color: #f1f1f1 !important;
+    }
+  }
+  .logo {
+    svg {
+      fill: #f0f0f0;
     }
   }
 }
@@ -611,16 +734,16 @@ $spanvalue: 30px;
   font-size: 15px;
   background: rgba(34, 34, 34, 0.86);
   color: #f1f1f1;
-  border-radius: 50%;
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
   -ms-border-radius: 50%;
   -o-border-radius: 50%;
-  transition: 200ms all;
+  border-radius: 50%;
   -webkit-transition: 200ms all;
   -moz-transition: 200ms all;
   -ms-transition: 200ms all;
   -o-transition: 200ms all;
+  transition: 200ms all;
 }
 .mode-control span:hover {
   padding: 0px !important;
@@ -629,7 +752,9 @@ body.dark .mode-control span {
   background: rgba(241, 241, 241, 0.86);
   color: #222;
 }
-
+// taslak
+@media (max-width: 1050px) {
+}
 @media (max-width: 1050px) {
   .center {
     display: flex;
@@ -637,6 +762,82 @@ body.dark .mode-control span {
   }
   .cright {
     display: none;
+  }
+}
+
+@media (max-width: 850px) {
+  .right {
+    display: none;
+  }
+  .left {
+    display: none;
+  }
+  .logo {
+    display: none;
+    svg {
+      display: none;
+    }
+  }
+  .headercont {
+    .right {
+      .profile {
+        a {
+          img {
+            max-width: 50px;
+          }
+        }
+      }
+      .notifications {
+        right: -100px;
+      }
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .centercont {
+    min-width: 500px !important;
+  }
+  .post {
+    min-width: 500px !important;
+  }
+}
+@media (max-width: 600px) {
+  .centercont {
+    min-width: 400px !important;
+  }
+  .post {
+    min-width: 400px !important;
+  }
+  .headercont {
+    .right {
+      .notifications {
+        right: -165px;
+      }
+    }
+  }
+}
+@media (max-width: 550px) {
+  .search {
+    width: 150px;
+    #search {
+      width: 150px !important;
+    }
+  }
+}
+@media (max-width: 500px) {
+  .headercont {
+    .right {
+      .notifications {
+        min-width: 350px;
+      }
+    }
+  }
+  .centercont {
+    min-width: 300px !important;
+  }
+  .post {
+    min-width: 300px !important;
   }
 }
 
@@ -663,8 +864,8 @@ body.dark .mode-control span {
   opacity: 0;
   visibility: hidden;
   position: fixed;
-  bottom: 30px;
-  right: 40px;
+  bottom: 20px;
+  right: 20px;
   z-index: 99;
   font-size: 16px;
   border: none;
@@ -672,11 +873,11 @@ body.dark .mode-control span {
   cursor: pointer;
   padding: 15px;
   border-radius: 50%;
-  transition: 200ms all;
   -webkit-transition: 200ms all;
   -moz-transition: 200ms all;
   -ms-transition: 200ms all;
   -o-transition: 200ms all;
+  transition: 200ms all;
   background-color: rgba($color: $black, $alpha: 0.2);
   color: rgba($color: $black, $alpha: 0.8);
   box-shadow: 0px 0px 10px #000;
@@ -708,6 +909,15 @@ body.dark #gotopbtn:active {
   box-shadow: 0px 0px 10px #fff;
 }
 
-div:empty {
-  display: none !important;
+// div:empty {
+//   display: none;
+// }
+hr {
+  border-top: 1px solid rgb(197, 197, 197);
+  display: block;
+  width: 100%;
+  &:last-child {
+    border-top: 1px solid rgb(197, 197, 197);
+    display: none;
+  }
 }

@@ -2,18 +2,14 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+  <%- include('inc/metatag.ejs') %>
+    
     <title>404 NOT FOUND</title>
-    <link rel="stylesheet" href="/css/404.css">
 </head>
 
 <body>
-    <div class="fof">
-        <canvas></canvas>
-        <h1 class="show">You shouldn't be here. Go to <a href="/">home</a></h1>
-    </div>
-    <script src="/js/404.js"></script>
+    <%- (locals.message) ? message : 'We could not find page that you were searched' %>
 </body>
 
 </html>

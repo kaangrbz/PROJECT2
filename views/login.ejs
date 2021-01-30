@@ -2,8 +2,9 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+  <%- include('inc/metatag.ejs') %>
+    
     <title>Login</title>
     <style>
         html,body{
@@ -30,7 +31,7 @@
                 <div class="alert alert-<%= status %>">
                     <%= message %>
                 </div>
-                <% } } } catch(err){ console.log('login: catch') } %>
+                <% } } } catch(err){ console.log('login.ejs') } %>
             <h1>Login</h1>
                 <div class="form-group">
                 <input required type="text" class="form-control" id="username" value="" placeholder="username" name="username">

@@ -2,10 +2,8 @@
 <html lang="tr">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('inc/metatag.ejs') %>
 	<link rel="stylesheet" href="/css/style.css">
-	<link rel="icon" href="data:,">
 	<script src="/js/sweetalert2.all.min.js"></script>
 	<script src="/js/jquery.min.js"></script>
 	<script src="/js/post.js"></script>
@@ -19,8 +17,10 @@
 		<div class="header">
 			<div class="headercont">
 				<div class="logo">
-					<a href="/">PROJECT2</a>
-				</div>
+          <a href="/">
+            <%- include('inc/logo.ejs') %>
+          </a>
+        </div>
 				<div class="search">
 					<input type="text" name="search" id="search" placeholder="search box to here">
 					<span class="searchbtn">
@@ -42,11 +42,11 @@
 												<a href="post/<%= n.postid %>"><b>
 														<%= n.nuser %>
 													</b>liked your post </a>
-												<% break; case 2: %>
+												<% break; case 3: %>
 													<a href="/<%= n.nuser %>"><b>
 															<%= n.nuser %>
 														</b> started to follow you</a>
-													<% break; case 3: %>
+													<% break; case 2: %>
 														<a href="post/<%= n.postid %>"><b>
 																<%= n.nuser %>
 															</b>comment to your post</a>
@@ -68,7 +68,7 @@
 						<span><i class="fas fa-moon"></i></span>
 						<span><i class="fas fa-sun"></i></span>
 					</label>
-					<a class="logout" href="/logout"><i class="fas fa-sign-out-alt"></i></a>
+					<a class="logout" href="/logout" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
 					<div class="profile">
 						<a href="<%= (locals.u1) ? '/'+u1 : 'javascript:void(0)' %>"><img src="img/profile1.jpg" alt="right"></a>
 					</div>
@@ -101,8 +101,8 @@
 						<br>
 						<%= (locals.u) ? 'Biography: ' +u.biography : '' %>
 							<div class="pstatus">
-								<a href="#">
-									<div class="pcount">23</div>posts
+								<a href="#"> <% console.log(pcount)  %> 
+									<div class="pcount"><%= (locals.pcount || pcount === 0) ? pcount : 'null' %></div>posts
 								</a>
 								<a href="#">
 									<div class="pfollowers">
@@ -120,7 +120,7 @@
 
 				</div>
 				<div class="loading">
-					<img src="/img/loading.gif">
+					<img src="/img/bird.gif" alt="loadinggif">
 				</div>
 				<div class="cright">right</div>
 			</div>
@@ -130,6 +130,7 @@
 		<script src="/js/theme.js"></script>
 		<script src="/js/fontawesome.js"></script>
 		<script src="/js/index.js"></script>
+		<script src="/js/logo.js"></script>
 </body>
 
 </html>

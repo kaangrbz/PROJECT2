@@ -16,14 +16,20 @@ window.onload = function setblockqu() {
 
 
 
+verifiedTag = '<span class="verified"><i class="far fa-check-circle"></i></span>'
+
 ///////////////////////////////// gotopbtn ////////////////////////////
 //Get the button
-let container = document.querySelector('html');
+let tag = document.querySelector('html');
 var goTopBtn = document.querySelector("#gotopbtn");
 // When the user scrolls down 20px from the top of the document, show the button
-container.onscroll = function () { scrollFunction() };
+window.onscroll = () => {
+  scrollFunction();
+  console.log('s');
+};
 function scrollFunction() {
-  if (container.scrollTop > 00) {
+  let limit = 200
+  if (tag.scrollTop > limit || document.documentElement.scrollTop > limit) {
     goTopBtn.style.visibility = "visible";
     goTopBtn.style.opacity = "1";
   }
@@ -34,7 +40,7 @@ function scrollFunction() {
 }
 // When the user clicks on the button, scroll to the top of the document
 function topFunction() {
-  container.scrollTop = 0;
+  tag.scrollTop = 0;
   document.documentElement.scrollTop = 0;
 }
 /* // random cool bg (optional)
@@ -50,10 +56,10 @@ setInterval(randombgcolor,1100);
 
 $('.notif').on('click', (e) => {
   if ($('.notifications').css('display') == 'none') {
-    $('.notifications').show(300)
+    $('.notifications').addClass('active')
   }
   else {
-    $('.notifications').hide(300)
+    $('.notifications').removeClass('active')
   }
 })
 
@@ -142,18 +148,21 @@ $('.send').on('click', (e) => {
 
 function send(e) {
   postid = $(e).parent().parent().parent().attr('data-post-id')
-  msg = $('div[data-post-id=' + postid + '] input[type=text]').val() || ''
+  message = $('div[data-post-id=' + postid + '] input[type=text]').val() || ''
   url = '/3/' + postid + '/event'
   c = $('div[data-post-id=' + postid + '] .comments')
   console.log(c);
-  if (msg.length > 0) {
-    data = { msg }
+  if (message.length > 0) {
+    data = { message }
     $.post(url, data, res => {
       input = $('div[data-post-id=' + postid + '] input[type=text]');
-      console.log(input);
+      console.log('isverified > ', res.isverified);
       if (res.status === 0) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' }) }
       else if (res.status === 1) {
-        comment = '<div class="comment"><span class="uname">' + res.username + '</span><span class="cmsg">' + res.msg + '</span><span class="cdate">' + res.date + '</span></div>'
+        if (res.isverified)
+          comment = '<div class="comment"><span class="uname">' + res.username + verifiedTag + '</span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>'
+        else
+          comment = '<div class="comment"><span class="uname">' + res.username + '</span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>'
         c.append(comment);
         input.val('')
       }
@@ -300,8 +309,8 @@ function update(e) {
     else if (res.status === 2) {
       $('.msg').html('<h3 class="danger">' + res.message + '</h3>').show(300)
       $(window).scrollTop(y - 50);
-      var counter = 5;
-      var interval = setInterval(function () {
+      let counter = 5;
+      let interval = setInterval(function () {
         counter--;
         $(e).html('Update in (' + counter + 's)')
         if (counter == 0) {
@@ -316,6 +325,17 @@ function update(e) {
       f = true
       $('.msg').html('<h3 class="danger">' + res.message + '</h3>').show(300)
       $(window).scrollTop(y - 50);
+
+      let counter = 5;
+      let interval = setInterval(function () {
+        counter--;
+        $(e).html('Update in (' + counter + 's)')
+        if (counter == 0) {
+          $(e).removeAttr('disabled')
+          $(e).html('Update')
+          clearInterval(interval);
+        }
+      }, 1000);
       alts.forEach(alt => {
         if (alt !== null) {
           if (f) {
@@ -382,3 +402,84 @@ function addpost(e) {
     }
   });
 }
+
+let ad = true
+$('.notif').on('click', (e) => {
+  url = '/1/notif/'
+  if (ad && $('.notifications').css('display') !== 'none') {
+    ad = false
+    notifloading = $('.notifloading')
+    $('.ncount').html('').hide(200)
+    notifloading.show(200)
+    ntag = $('.notifications ul')
+    $.post(url, res => {
+      console.log('notif res => ', res);
+      if (res.status === 0) {
+        Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', })
+          .then((result) => {
+            if (result.isConfirmed)
+              window.location.href = '/login'
+          })
+      }
+      else if (res.status === 1 || res.status == 2) {
+        notifloading.hide()
+        if (res.status === 2) ad = true
+        result = res.result
+        if (result.length > 0) {
+          var limit = 11;
+          try {
+            result.forEach((n, index) => {
+              console.log('foreach counter ',index);
+              console.log('n => ', n);
+              uname = res.users[index];
+              switch (n.ncode) {
+                case 1:
+                  t = `<li><a href="post/` + n.postid + `"><b>
+                  `+ ((uname.length > limit) ? uname.substring(0, limit) + '..' : uname) + `
+                </b>liked your post </a><span class="ntime">
+                                  `+ res.dates[index] + `
+                                </span></li><hr>`
+                  ntag.append(t)
+                  break;
+
+                case 2:
+                  t = `<li><a title="Go to `+uname+`\'s profile" href="/` + uname + `"><b>
+                    `+ ((uname.length > limit) ? uname.substring(0, limit) + '..' : uname) + `
+                  </b>started to follow you</a><span title="" class="ntime">
+                                    `+ res.dates[index] + `
+                                  </span></li><hr>`
+                  ntag.append(t)
+                  break;
+
+                case 3:
+                  t = `<li><a href="/` + uname + `"><b>
+                      `+ ((uname.length > limit) ? uname.substring(0, limit) + '..' : uname) + `
+                    </b>started to follow you</a><span title="" class="ntime">
+                                      `+ res.dates[index] + `
+                                    </span></li><hr>`
+                  ntag.append(t)
+                  break;
+              }
+            });
+          } catch (error) {
+            t = `<li><a href="" onclick="location.reload()">There is an error please refresh the page</a><br>err: ` + error + `</li><hr>`
+            ntag.append(t)
+          }
+        }
+        else {
+          t = `<li><a href="javascript:void(0)">You have no notification<i class="far fa-sad-tear"></i></a></li><hr>`
+          ntag.append(t)
+        }
+
+      }
+      else if (res.status === 3) {
+        notifloading.hide()
+        Swal.fire({ icon: 'error', title: 'Oops...', text: res.message, })
+          .then((result) => {
+            if (result.isConfirmed)
+              location.reload();
+          })
+      }
+    })
+  }
+});

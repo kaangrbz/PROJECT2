@@ -2,10 +2,14 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+  <%- include('inc/metatag.ejs') %>
+    
     <title>Sign up</title>
     <link rel="stylesheet" href="/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/random.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/html2canvas.min.js"></script>
 </head>
 
 <body>
@@ -28,11 +32,11 @@
                     </div>
                     <div class="form-group">
                         <input value="<%= (locals.username) ? username : '' %>" type="text" class="form-control"
-                            placeholder="username" name="username">
+                            placeholder="username" name="username" autocomplete="username">
                     </div>
                     <div class="form-group">
                         <input value="<%= (locals.userpass) ? userpass : '' %>" type="password" class="form-control"
-                            placeholder="userpass" name="userpass">
+                            placeholder="userpass" name="userpass" autocomplete="current-password">
                     </div>
                     <div class="form-group">
                         You are already member? <a href="/login">Come here</a>
@@ -40,6 +44,23 @@
                     <button type="submit" class="btn btn-primary">Sign up</button>
         </form>
     </div>
+    <div class="random" id="profile"></div>
+    
+  <!-- <script src="/js/random.js"></script>
+    <script>
+        html2canvas(document.querySelector("#profile")).then(canvas => {
+            console.log(canvas.toDataURL('image/png'));
+            document.body.appendChild(canvas)
+            // sendMessage(canvas);
+        });
+        function sendMessage(image) {
+            var msg = JSON.stringify(image);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', true);
+            xhr.send(msg);
+            alert('file is saved');
+        }
+    </script> -->
 </body>
 
 </html>

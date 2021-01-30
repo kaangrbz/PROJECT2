@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" href="data:,">
+	
+  <%- include('inc/metatag.ejs') %>
+	
 	<link rel="stylesheet" href="/css/style.css">
 	<script src="/js/sweetalert2.all.min.js"></script>
 	<title>PROFILE PAGE</title>
@@ -15,8 +15,10 @@
 		<div class="header">
 			<div class="headercont">
 				<div class="logo">
-					<a href="/">PROJECT2</a>
-				</div>
+          <a href="/">
+            <%- include('inc/logo.ejs') %>
+          </a>
+        </div>
 				<div class="search">
 					<input type="text" name="search" id="search" placeholder="search box to here">
 					<span class="searchbtn">
@@ -64,7 +66,7 @@
 						<span><i class="fas fa-moon"></i></span>
 						<span><i class="fas fa-sun"></i></span>
 					</label>
-					<a class="logout" href="/logout"><i class="fas fa-sign-out-alt"></i></a>
+					<a class="logout" href="/logout" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
 					<div class="profile">
 						<a href="<%= (locals.username) ? '/'+username : 'javascript:void(0)' %>"><img src="/img/profile1.jpg" alt="right"></a>
 					</div>
@@ -86,9 +88,9 @@
 								</div>
 							</div>
 						</div>
-						<%= (locals.data) ? 'Fullname: ' +data.fullname : 'null' %>
+						<%= (locals.data) ? data.fullname : 'null' %>
 							<br>
-							<%= (locals.bio || bio=='' ) ? 'Bio: ' +bio : 'null' %>
+							<%= (locals.bio) ? bio : '' %>
 								<div class="pstatus">
 									<a href="#">
 										<div class="pcount">23</div>posts
