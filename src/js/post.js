@@ -14,6 +14,8 @@ $(window).on('load', () => {
 
 var sj = true
 verifiedTag = '<span class="verified"><i class="far fa-check-circle"></i></span>'
+bannerTag = '<div class="banner"><a href="https://tr.link/ref/devkaan"><img src="//cdn.tr.link/img/728x90.png" title="Para Kazanmak İçin Tıkla Kayıt OL" /></a></div>'
+
 function getpost() {
   var y = $(window).scrollTop();
   if ($(location).attr('pathname') !== '/') {
@@ -130,8 +132,9 @@ function getpost() {
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
             });
           } catch (error) {
-            $('.posts').append('<br><br>Upload post error, Please refresh the page err:<br>' + error + '<br><br>')
+            $('.posts').append('Upload post error, Please refresh the page err:<br>' + error)
           }
+          $('.posts').append(bannerTag)
         }
 
         else if (res.status === 4) {
@@ -236,8 +239,9 @@ function getpost() {
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
             });
           } catch (error) {
-            $('.posts').append('<br><br>Upload post error, Please refresh the page err:<br>' + error + '<br><br>')
+            $('.posts').append('Upload post error, Please refresh the page err:<br>' + error)
           }
+          $('.posts').append(bannerTag)
         }
       }
       else if (res.status === 3) {

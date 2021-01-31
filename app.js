@@ -467,8 +467,7 @@ app.route('/:username')
       }
    })
 
-plimit = 5
-app.route('/:username/getpost')
+   app.route('/:username/getpost')
    .get((req, res) => {
       res.redirect('/')
    })
@@ -488,6 +487,7 @@ app.route('/:username/getpost')
             isfirst = true
          }
          if (username === 'index') {
+            plimit = 5
             // for index page
             lnd = []
             counts = []
@@ -622,7 +622,7 @@ app.route('/:username/getpost')
          }
          else {
             // for profile page
-            plimit = 3
+            plimit = 4
             lnd = []
             counts = []
             let user = await User.findOne({ username, visibility: true })
