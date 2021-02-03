@@ -1,15 +1,26 @@
-$(window).on('ready', (e) => {
+$(window).on('load', (e) => {
   body = $('body')
-  addpostbtn = `<div class="addpost" style="display:none">
+  addpostbtn = `<div class="addpost" style="display: none">
   <i class="fas fa-plus-square"></i>
 </div>`
+  sendposttag = $('.sendpost')
   body.append(addpostbtn)
-  addpostbtn.show(300)
-  $(addpostbtn).on('click', () => {
-    console.log('wawd');
+  isrotated = false
+  $('.addpost').show(500)
+  $('.addpost').on('click', () => {
+    if (isrotated) {
+      $('.addpost').css('transform', 'rotate(0deg)');
+      isrotated = false
+    } else {
+      $('.addpost').css('transform', 'rotate(45deg)');
+      isrotated = true
+    }
+    sendposttag.toggleClass('active')
   })
+  $('.addpost').trigger('click')
 })
 
-function toggleAddpost() {
-  
-}
+$("#article").on('keyup', function () {
+  let limit = 300
+  $("#count").text(($(this).val().length) + "/" + limit);
+});

@@ -95,18 +95,40 @@ const Post = mongoose.model('Post', postSchema);
 const countSchema = new Schema({
     users: {
         type: Number,
-        default:0
+        default: 0
     },
     posts: {
         type: Number,
-        default:0
+        default: 0
     }
 })
 
 const Count = mongoose.model('Count', countSchema);
 
+const utmSchema = new Schema({
+    fromwhere: {
+        type: String,
+        require: true,
+        unique: false
+    },
+    whoadded: {
+        type: String,
+        require: true
+    },
+    whichsite: {
+        type: String,
+        require: true
+    },
+}, {
+    timestamps: true
+})
+
+const UTM = mongoose.model('UTM', utmSchema);
+
+
 module.exports = {
     User,
     Post,
     Count,
+    UTM,
 }

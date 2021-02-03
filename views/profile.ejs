@@ -2,136 +2,104 @@
 <html lang="tr">
 
 <head>
-  <%- include('inc/metatag.ejs') %>
-	<link rel="stylesheet" href="/css/style.css">
-	<script src="/js/sweetalert2.all.min.js"></script>
-	<script src="/js/jquery.min.js"></script>
-	<script src="/js/post.js"></script>
-	<title>
-		<%= (locals.u2 ) ? u2+'\'s profile' : 'Profile' %>
-	</title>
+	<%- include('inc/metatag.ejs') %>
+		<link rel="stylesheet" href="/css/style.css">
+		<script src="/js/sweetalert2.all.min.js"></script>
+		<script src="/js/jquery.min.js"></script>
+		<script src="/js/post.js"></script>
+		<title>
+			<%= (locals.u2 ) ? u2+'\'s profile' : 'Profile' %>
+		</title>
 </head>
 
 <body>
-	<div class="cont">
-		<div class="header">
-			<div class="headercont">
-				<div class="logo">
-          <a href="/">
-            <%- include('inc/logo.ejs') %>
-          </a>
-        </div>
-				<div class="search">
-					<input type="text" name="search" id="search" placeholder="search box to here">
-					<span class="searchbtn">
-						<i class="fas fa-search"></i>
-					</span>
-				</div>
-				<div class="right">
-					<div class="notif">
-						<i class="far fa-bell" id="bell"></i>
+	<%- include('inc/site_version.ejs') %>
+		<div class="cont">
+			<div class="header">
+				<div class="headercont">
+					<div class="logo">
+						<a href="/">
+							<%- include('inc/logo.ejs') %>
+						</a>
 					</div>
-					<div class="notifications">
-						<div class="arrow"></div>
-						<div>
-							<% if (locals.notif){ %>
-								<ul>
-									<% if(notif.length>0){ notif.slice(-5).forEach(n =>{ %>
-										<li>
-											<% switch (n.ncode) { case 1: %>
-												<a href="post/<%= n.postid %>"><b>
-														<%= n.nuser %>
-													</b>liked your post </a>
-												<% break; case 3: %>
-													<a href="/<%= n.nuser %>"><b>
-															<%= n.nuser %>
-														</b> started to follow you</a>
-													<% break; case 2: %>
-														<a href="post/<%= n.postid %>"><b>
-																<%= n.nuser %>
-															</b>comment to your post</a>
-														<% break; default: break; } %>
-															<span class="ntime">
-																<%= n.ntime %>
-															</span>
-										</li>
-										<% }) } else{ %>
-											<li><a href="javascript:void(0)">There is no notif yet.</a></li>
+					<div class="search">
+						<input type="text" name="search" id="search" placeholder="search box to here">
+						<span class="searchbtn">
+							<i class="fas fa-search"></i>
+						</span>
+					</div>
+					<div class="right">
+						<%- include('inc/header_right.ejs') %>
+					</div>
+				</div>
+			</div>
+
+			<div class="center prof">
+				<div class="centercont">
+					<%- include('inc/banner.ejs') %>
+					<%- include('inc/sendpost.ejs') %>
+						
+						<div class="puser">
+							<div class="pname">
+								<div>
+									<img src="/img/profile2.jpg" alt="">
+									<div>
+										<%= (locals.u2) ? u2 : 'null' %>
+											<%- (locals.verified)
+												? '<span class="verified" title="Verified account"><i class="far fa-check-circle"></i></span>'
+												: '' %>
+									</div>
+								</div>
+								<div class="pbtn">
+									<% if(locals.isme && isme){ %> <a href="/edit/">Edit profile</a>
+										<% } else{ %>
+											<a class="follow" data-username="<%= (locals.u2) ? u2 : 'javascript:void(0)' %>">
+												<%= (locals.isfollowed && isfollowed) ? 'Unfollow' : 'Follow' %>
+											</a>
 											<% } %>
-								</ul>
-								<% } %>
-						</div>
-					</div>
 
-					<label class="mode-control">
-						<input type="checkbox" id="mode-btn">
-						<span><i class="fas fa-moon"></i></span>
-						<span><i class="fas fa-sun"></i></span>
-					</label>
-					<a class="logout" href="/logout" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
-					<div class="profile">
-						<a href="<%= (locals.u1) ? '/'+u1 : 'javascript:void(0)' %>"><img src="img/profile1.jpg" alt="right"></a>
-					</div>
+								</div>
+							</div>
+							<%= (locals.u) ? u.fullname : '' %>
+								<br>
+								<%= (locals.u) ? u.biography : '' %>
+									<div class="pstatus">
+										<a href="#">
+											<% console.log(pcount) %>
+												<div class="pcount">
+													<%= (locals.pcount || pcount===0) ? pcount : 'null' %>
+												</div>posts
+										</a>
+										<a href="#">
+											<div class="pfollowers">
+												<%= (locals.data) ? data.followers.c : 'null' %>
+											</div>followers
+										</a>
+										<a href="#">
+											<div class="pfollowings">
+												<%= (locals.data) ? data.following.c : 'null' %>
+											</div>following
+										</a>
+									</div>
+						</div>
+						<div class="posts">
+
+						</div>
+						<div class="loading">
+							<img src="/img/bird.gif" alt="loadinggif">
+						</div>
+						<div class="cright">right</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="center prof">
-			<div class="centercont">
-        <%- include('inc/banner.ejs') %>
-				<div class="puser">
-					<div class="pname">
-						<div>
-							<img src="/img/profile2.jpg" alt="">
-							<div>
-								<%= (locals.u2) ? u2 : 'null' %>
-									<%- (locals.verified) ? '<span class="verified"><i class="far fa-check-circle"></i></span>' : '' %>
-							</div>
-						</div>
-						<div class="pbtn">
-							<% if(locals.isme && isme){ %> <a href="/edit/">Edit profile</a>
-								<% } else{ %>
-									<a class="follow" data-username="<%= (locals.u2) ? u2 : 'javascript:void(0)' %>">
-										<%= (locals.isfollowed && isfollowed) ? 'Unfollow' : 'Follow' %>
-									</a>
-									<% } %>
+			<%- include('inc/popup.ejs') %>
+				<i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
 
-						</div>
-					</div>
-					<%= (locals.u) ? 'Fullname: ' +u.fullname : 'null' %>
-						<br>
-						<%= (locals.u) ? 'Biography: ' +u.biography : '' %>
-							<div class="pstatus">
-								<a href="#"> <% console.log(pcount)  %> 
-									<div class="pcount"><%= (locals.pcount || pcount === 0) ? pcount : 'null' %></div>posts
-								</a>
-								<a href="#">
-									<div class="pfollowers">
-										<%= (locals.data) ? data.followers.c : 'null' %>
-									</div>followers
-								</a>
-								<a href="#">
-									<div class="pfollowings">
-										<%= (locals.data) ? data.following.c : 'null' %>
-									</div>following
-								</a>
-							</div>
-				</div>
-				<div class="posts">
-
-				</div>
-				<div class="loading">
-					<img src="/img/bird.gif" alt="loadinggif">
-				</div>
-				<div class="cright">right</div>
-			</div>
-		</div>
-		<i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
-
-		<script src="/js/theme.js"></script>
-		<script src="/js/fontawesome.js"></script>
-		<script src="/js/index.js"></script>
-		<script src="/js/logo.js"></script>
+				<script src="/js/theme.min.js"></script>
+				<script src="/js/fontawesome.js"></script>
+				<script src="/js/index.js"></script>
+				<script src="/js/addpost.js"></script>
+				<script src="/js/utm_source.js"></script>
 </body>
 
 </html>

@@ -12,82 +12,50 @@
 
 <body>
   <div class="cont">
-    <div class="header">
-      <div class="headercont">
-        <div class="logo">
-          <a href="/">
-            <%- include('inc/logo.ejs') %>
-          </a>
-        </div>
-        <div class="search" title="Search something">
-          <input type="text" name="search" id="search" placeholder="search box to here">
-          <span class="searchbtn">
-            <i class="fas fa-search"></i>
-          </span>
-        </div>
-        <div class="right">
-          <div class="notif" title="Notifications">
-            <i class="far fa-bell" id="bell"></i>
-            <div class="ncount">2</div>
+    <%- include('inc/site_version.ejs') %>
+      <div class="header">
+        <div class="headercont">
+          <div class="logo">
+            <a href="/">
+              <%- include('inc/logo.ejs') %>
+            </a>
           </div>
-          <div class="notifications">
-            <img class="notifloading" src="/img/loading.gif" alt="loadinggif">
-            <ul>
-            </ul>
+          <div class="search" title="Search something">
+            <input type="text" name="search" id="search" placeholder="search box to here">
+            <span class="searchbtn">
+              <i class="fas fa-search"></i>
+            </span>
           </div>
-
-
-          <label class="mode-control">
-            <input type="checkbox" id="mode-btn">
-            <span><i class="fas fa-moon"></i></span>
-            <span><i class="fas fa-sun"></i></span>
-          </label>
-          <a class="logout" href="/logout" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
-          <div class="profile">
-            <a href="/<%= (locals.username) ? username : 'javascript:void(0)' %>"><img src="img/profile1.jpg"
-                alt="right"></a>
+          <div class="right">
+            <%- include('inc/header_right.ejs') %>
           </div>
         </div>
       </div>
-    </div>
-    <div class="center">
-      <div class="centercont">
-        <%- include('inc/banner.ejs') %>
-        <div class="sendpost">
-          <div class="cont">
-            <div class="msg"></div>
-            <form action="" onsubmit="return false" enctype='application/json' id="postform">
-              <input disabled name="media" type="file" placeholder="Tags (optional)">
-              <input name="tags" type="text" placeholder="tags exp: html css asd qwe">
-              <textarea name="article" cols="30" rows="10"></textarea>
-              <button type="submit" id="postbtn">POST</button>
-            </form>
-          </div>
+      <div class="center">
+        <div class="centercont">
+          <%- include('inc/banner.ejs') %>
+            <%- include('inc/sendpost.ejs') %>
+              <div class="posts"></div>
+              <div class="loading">
+                <img src="/img/bird.gif" alt="loadinggif">
+              </div>
         </div>
 
-        <div class="posts">
+        <div class="cright">right</div>
 
-        </div>
-        <div class="loading">
-          <img src="/img/bird.gif" alt="loadinggif">
-        </div>
+
+        <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
       </div>
-
-      <div class="cright">right</div>
-
-
-      <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
-    </div>
   </div>
 
-  <script src="/js/theme.js"></script>
+  <script src="/js/theme.min.js"></script>
   <script src="js/jquery.min.js"></script>
   <script src="js/fontawesome.js"></script>
   <script src="/js/sweetalert2.all.min.js"></script>
   <script src="js/index.js"></script>
   <script src="/js/post.js"></script>
   <script src="/js/addpost.js"></script>
-  <script src="/js/logo.js"></script>
+  <script src="/js/utm_source.js"></script>
 </body>
 
 </html>

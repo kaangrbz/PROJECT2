@@ -17,6 +17,7 @@ const {
    User,
    Post,
    Count,
+   UTM,
 } = require('./models/blogs')
 const { get } = require('http')
 app.set('view engine', 'ejs')
@@ -72,7 +73,7 @@ const getJSON = (fullpathname) => {
    return new Promise((resolve, reject) => {
       fs.readFile(fullpathname, (err, data) => {
          if (err) {
-            reject('err1')  // calling `reject` will cause the promise to fail with or without the error passed as an argument
+            reject(err)  // calling `reject` will cause the promise to fail with or without the error passed as an argument
             return        // and we don't want to go any further
          }
          resolve(JSON.parse(data))
@@ -80,6 +81,10 @@ const getJSON = (fullpathname) => {
    })
 }
 const dbURL = "mongodb+srv://" + process.env.DBUSERNAME + ":" + process.env.DBUSERPASS + "@cluster0.k4rvg.mongodb.net/" + process.env.DBNAME + "?retryWrites=true&w=majority"
+
+// setInterval(()=>{
+//    console.log('im the interval on server side')
+// },1000)
 
 var db = mongoose.connect(dbURL, {
    useNewUrlParser: true,
@@ -123,14 +128,51 @@ app.get('/explore', function (req, res, next) {
    res.end('/explore will soon be here')
 });
 
-pindex = 5
-app.route('/')
+var sitename = 'devkaan test social media site'
+app.route('/from/:adress')
    .get((req, res) => {
+      res.redirect('/')
+   })
+   .post((req, res) => {
+      try {
+         adress = req.params.adress
+      } catch (error) {
+         adress = null
+         console.log(error);
+      }
+      console.log(adress);
+      if (adress) {
+         let utm = new UTM({
+            fromwhere: adress,
+            whoadded: (req.session.userid) ? req.session.userid : 'visitor',
+            whichsite: sitename
+         }).save(result => {
+            console.log('145 =>', result);
+            if (result) {
+               res.json({ status: 1 })
+            }
+            else { res.json({ status: 2, message: 'utm_source could not added' }) }
+         })
+      }
+   })
+
+pindex = 5
+app.route('/') // home
+   .get(async (req, res) => {
       req.session.nowuser = null
       if (req.session.userid) {
+         u1 = req.session.username
          try {
-            username = req.session.username
-            res.render('index', { username })
+            userid = req.session.userid
+            ncount = 0
+            notifpath = userpath + userid + '/notifications.json'
+            let notifs = await getJSON(notifpath)
+            if (notifs.length > 0) {
+               notifs.forEach((notif, i) => {
+                  if (!notif.read) ncount++
+               })
+            }
+            res.render('index', { u1, ncount })
          } catch (e) {
             res.render('index')
          }
@@ -188,7 +230,6 @@ app.route('/signup')
    .get((req, res) => {
       res.render('signup')
    })
-
    .post((req, res) => {
       username = req.body.username || null;
       userpass = md5(req.body.userpass) || null;
@@ -336,7 +377,7 @@ app.route('/edit')
       }
    })
    .post(async (req, res) => {
-
+      console.log('376');
       if (req.session.userid) {
          userid = req.session.userid
 
@@ -415,64 +456,98 @@ app.route('/edit')
          res.json({ status: 0 })
       }
    })
-
-app.route('/:username')
-   .get(async (req, res) => {
-      if (req.session.username) {
-         if (req.params.username !== 'favicon.ico') {
-            userid = req.session.userid
-            u1 = req.session.username
-            u2 = req.params.username
-            req.session.nowuser = null
-
-            fpn3 = userpath + userid + '/notifications.json'
-            isme = false
-            if (u1 === u2)
-               isme = true
-            try {
-               // check user is not suspended and not private
-               u = await User.findOne({ username: u2 }).select('username userid biography verified fullname -_id')
-               if (u) {
-                  allposts = await Post.find({ userid: u.userid }).select('postid -_id')
-                  pcount = allposts.length
-                  console.log('pcount =>', allposts);
-                  try {
-                     fpn2 = userpath + u.userid + '/profile.json'
-                     fs.readFile(fpn2, (err, data) => {
-                        data = JSON.parse(data)
-                        console.log('data => ', data);
-                        i1 = data.followers.who.indexOf(userid)
-                        isfollowed = false
-                        if (i1 > -1)
-                           isfollowed = true
-                        verified = false
-                        if (u.verified)
-                           verified = true
-                        res.render('profile', { data, u1, u2, isme, verified, isfollowed, u, pcount })
-                     })
-                  } catch (error) {
-                     console.log('err => 338 \n', error);
-                  }
-               }
-               else {
-                  res.render('404')
-               }
-            } catch (error) {
-               console.log('err => 328', error);
-            }
-         }
-      }
-      else {
-         res.redirect('/login')
-      }
-   })
-
-   app.route('/:username/getpost')
+app.route('/markasread')
    .get((req, res) => {
       res.redirect('/')
    })
    .post(async (req, res) => {
       if (req.session.userid) {
+         userid = req.session.userid
+         ncount = 0
+         notifpath = userpath + userid + '/notifications.json'
+         let notifs = await getJSON(notifpath)
+         if (notifs.length > 0) {
+            notifs.forEach((notif, i) => {
+
+               console.log('--------------------------------------------- 734');
+               if (!notif.read) notifs[i].read = true
+            })
+            fs.writeFile(notifpath, JSON.stringify(notifs), err => {
+               if (err) res.json({ status: 2, message: 'There is an error. Please try again later' })
+               res.json({ status: 1, message: 'Successfuly marked as read' })
+            })
+            // console.log(notifs);
+         }
+      } else {
+         res.json({ status: 0 })
+      }
+   })
+
+
+
+
+
+app.route('/:username')
+   .get(async (req, res) => {
+      if (req.params.username !== 'favicon.ico') {
+         userid = req.session.userid
+         u1 = req.session.username
+         u2 = req.params.username
+         req.session.nowuser = null
+
+         notifpath = userpath + userid + '/notifications.json'
+         isme = false
+         if (u1 === u2)
+            isme = true
+         try {
+            // check user is not suspended and not private
+            u = await User.findOne({ username: u2 }).select('username userid biography verified fullname -_id')
+            if (u) {
+               userid = u.userid
+               allposts = await Post.find({ userid }).select('postid -_id')
+               pcount = allposts.length
+               // console.log('pcount =>', allposts); /// 
+               try {
+                  ncount = 0
+                  notifpath = userpath + userid + '/notifications.json'
+                  let notifs = await getJSON(notifpath)
+                  if (notifs.length > 0) {
+                     notifs.forEach((notif, i) => {
+                        if (!notif.read) ncount++
+                     })
+                  }
+                  fpn2 = userpath + u.userid + '/profile.json'
+                  fs.readFile(fpn2, (err, data) => {
+                     data = JSON.parse(data)
+                     // console.log('data => ', data); /// 
+                     i1 = data.followers.who.indexOf(userid)
+                     isfollowed = false
+                     if (i1 > -1)
+                        isfollowed = true
+                     verified = false
+                     if (u.verified)
+                        verified = true
+                     res.render('profile', { data, u1, u2, isme, verified, isfollowed, u, pcount, ncount })
+                  })
+               } catch (error) {
+                  console.log('err => 338 \n', error);
+               }
+            }
+            else {
+               res.render('404')
+            }
+         } catch (error) {
+            console.log('err => 328', error);
+         }
+      }
+   })
+
+app.route('/:username/getpost')
+   .get((req, res) => {
+      res.redirect('/')
+   })
+   .post(async (req, res) => {
+      if (true) {
          if (req.params.username !== 'favicon.ico') {
             username = req.params.username
             userid = req.session.userid
@@ -591,7 +666,7 @@ app.route('/:username')
                }
                else if (dl > 1) {
                   console.log('569');
-                  let message = 'You are following more than 1 guy'
+                  let message = 'You are following more than 1 guy. this is soon'
                   res.json({
                      status: 3,
                      result: null,
@@ -625,70 +700,76 @@ app.route('/:username')
             plimit = 4
             lnd = []
             counts = []
+            visibility = []
             let user = await User.findOne({ username, visibility: true })
+
             // console.log('610 user => ', user);
             status = 3
             if (user) {
-               if (!user.suspend) {
-                  // if user is not suspended
-                  if (userid === req.session.userid) {
+               if (!user.suspend) { // user is not suspended
+                  if (user.userid === req.session.userid) {
                      // if is me => true because i will load visibility: false post like 'you set the visibility: false'
-                     let posts = await Post.find({ userid: user.userid, postid: { $lt: pid } }).limit(plimit).sort({ createdAt: -1 })
-                     if (posts.length > 0) {
-                        // has post
-                        isfirst = false // for 'you have no post, share now' and 'you have no more post. let\'s share more'
-                        status = 1
-                        try {
-                           pid = posts[posts.length - 1].postid // artirma olayini hallet
-
-                           console.log('624 pid =>', pid); /// 
-                           (user.verified) ? isverified = 1 : isverified = 0;
-                           (user.userid === req.session.userid) ? isme = 1 : isme = 0
-                           posts.forEach((post, index) => {
-                              username = user.username
-                              postfilepath = postpath + post.postid + '.json'
-                              getJSON(postfilepath).then(postfile => {
-                                 if (postfile.likes.who.includes(userid)) lnd.push([1, 0])
-                                 else if (postfile.dislikes.who.includes(userid)) lnd.push([0, 1])
-                                 else lnd.push([0, 0])
-                                 counts.push([postfile.likes.c, postfile.dislikes.c, postfile.comments.c])
-                                 if ((index + 1) === posts.length) { // if last item
-                                    res.json({
-                                       // ilerde bunlari tek degiskende gonderebilirsin belki
-                                       status,
-                                       result: posts,
-                                       isverified,
-                                       username,
-                                       lnd,
-                                       counts,
-                                       isme,
-                                    })
-                                 }
-                              })
-                           })
-                        } catch (error) {
-                           console.log('649 catch =>', error);
-                        }
-                     }
-                     else {
-                        // has not post
-                        let message
-                        if (isfirst)
-                           message = 'You have no post <a href="/">Let\'s share one more</a>'
-                        else
-                           message = 'You have no more post. <a href="/">Let\'s share one</a>'
-                        res.json({
-                           status,
-                           result: null,
-                           message
-                        })
-                     }
+                     posts = await Post.find({ userid: user.userid, postid: { $lt: pid } }).limit(plimit).sort({ createdAt: -1 })
                   }
                   else {
                      // if is me => false do not load posts that visibility: false OK>
-                     let posts = await Post.find({ userid, postid: { $lt: pid }, visibility: true }).limit(plimit).sort({ createdAt: -1 })
+                     posts = await Post.find({ userid: user.userid, postid: { $lt: pid }, visibility: true }).limit(plimit).sort({ createdAt: -1 })
                   }
+                  if (posts.length > 0) {
+                     // has post
+                     isfirst = false // for 'you have no post, share now' and 'you have no more post. let\'s share more'
+                     status = 1
+                     try {
+                        pid = posts[posts.length - 1].postid // artirma olayini hallet
 
+                        console.log('624 pid =>', pid); /// 
+                        (user.verified) ? isverified = 1 : isverified = 0;
+                        (user.userid === req.session.userid) ? isme = 1 : isme = 0
+                        // posts.forEach((post, index) => {
+
+                        // })
+                        for (let index = 0; index < posts.length; index++) {
+                           post = posts[index];
+                           username = user.username
+                           postfilepath = postpath + post.postid + '.json'
+                           await getJSON(postfilepath).then(postfile => {
+                              console.log((index + 1) + '. post\'s file. postid: ' + post.postid);
+                              (post.visibility) ? visibility.push(1) : visibility.push(0)
+                              if (postfile.likes.who.includes(userid)) lnd.push([1, 0])
+                              else if (postfile.dislikes.who.includes(userid)) lnd.push([0, 1])
+                              else lnd.push([0, 0])
+                              counts.push([postfile.likes.c, postfile.dislikes.c, postfile.comments.c])
+                              if ((index + 1) === posts.length) { // if last item
+                                 res.json({
+                                    // ilerde bunlari tek degiskende gonderebilirsin belki
+                                    status,
+                                    result: posts,
+                                    isverified,
+                                    username,
+                                    lnd,
+                                    counts,
+                                    isme,
+                                    visibility
+                                 })
+                              }
+                           })
+                        }
+                     } catch (error) {
+                        console.log('649 catch =>', error);
+                     }
+                  }
+                  else {
+                     // has not post
+                     // let message
+                     // if (isfirst)
+                     //    message = 'Have no post. <a href="/">Let\'s share one</a>'
+                     // else
+                     //    message = 'Have no more post. <a href="/">Let\'s share one more</a>'
+                     res.json({
+                        status,
+                        result: null
+                     })
+                  }
                   // let message = 'user'
                   // res.json({
                   //    status,
@@ -740,20 +821,13 @@ app.route('/:ncode/notif/')
             nl = notif.length
             console.log('notif length =>', nl);
             if (nl > 0) {
-               if (nl <= 5) {
+               if (nl <= nlimit) {
                   // lover than or equal to 'nlimit'
-                  for (let i = 0; i < notif.length; i++) {
+                  for (let i = 0; i < nl; i++) {
                      const element = notif[i];
-                     console.log('--------------------------------------------- 734');
                      let user = await User.findOne({ userid: element.userid })
                      users.push(user.username)
-                     console.log('user.username =>', user.username);
-
-                     console.log('733 foreach i =>', i, ' nl -1  =>', nl - 1);
                      dates.push(t.formatDate(new Date(element.ntime), 'timeago'))
-                     console.log('before launch: users => ', users);
-                     console.log('before launch: dates => ', dates);
-                     console.log('737 if =>', i === (nl - 1));
                      if (i === (nl - 1)) {
                         res.json({ status: 1, result: notif, users, dates })
                      }
@@ -761,13 +835,12 @@ app.route('/:ncode/notif/')
                } else {
                   // higher than 'nlimit'
                   lastnotif = notif[(nl - 1)].nid
-                  console.log('lastnotif =>', lastnotif);
                   notif.forEach(async (notife, i) => {
                      let user = await User.findOne({ userid: notife.userid })
                      users.push(user.username)
-                     dates.push(await t.formatDate(new Date(notife.ntime), 'timeago'))
+                     dates.push(t.formatDate(new Date(notife.ntime), 'timeago'))
                      if (i == nl - 1) {
-                        res.json({ status: 2, result: notif, users, dates })
+                        res.json({ status: 2, result: notif.splice(0, nlimit), users: users.splice(0, nlimit), dates: dates.splice(0, nlimit) })
                      }
                   })
                }
@@ -1036,7 +1109,7 @@ app.route('/:ecode/:postid/event')
 
                //-------------------------------------------------------------//
                else if (ecode == 3) { // comment to post
-                  message = req.body.msg || ''
+                  message = req.body.message || ''
                   limit = 500
                   if (message.length > limit) {
                      message = message.substring(0, limit)
@@ -1044,7 +1117,7 @@ app.route('/:ecode/:postid/event')
                   data.comments.c++
                   data.comments.who.unshift({ userid, message, createdAt: new Date(), updatedAt: new Date() })
                   scode = 1
-
+                  console.log('message =>', message);
                   console.log('963 whoposted id =>', whoposted);
                   if (whoposted !== userid) {
                      fpn = userpath + whoposted + '/notifications.json'
@@ -1093,72 +1166,6 @@ app.route('/:ecode/:postid/event')
          }
       }
    })
-
-// app.route('/comment/:posturl')
-//   .get((req, res) => {
-//     res.redirect('/')
-//   })
-//   .post((req, res) => {
-//     email = req.body.email.trim() || null;
-//     try {
-//       var patt = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-//       var email = patt.exec(email)[0];
-//     } catch (error) {
-//       res.render('adduser', { message: 'email', status: 'danger' })
-//     }
-//     if (req.session.username) {
-//       url = req.params.posturl
-//       email = req.body.email.trim() || req.session.email
-//       article = req.body.article.trim() || ''
-//       pathname = 'public/posts/'
-//       fullpathname = pathname + req.params.posturl + ".json"
-//       var postFolder = fs.existsSync('public/posts')
-//       if (!postFolder) {
-//         // posts folder is not exist and will create
-//         fs.mkdir(pathname, (err) => {
-//           if (err) res.send('create folder error')
-//         })
-//       }
-//       else {
-//         // posts folder is exist
-//         isfileexist = fs.existsSync(fullpathname);
-//         if (isfileexist) {
-//           fs.readFile(fullpathname, (err, data) => {
-//             if (err) throw err;
-//             mdata = JSON.parse(data)
-//             comm_obj = {
-//               comm_username: req.session.username,
-//               comm_name: req.session.fullname,
-//               comm_email: email,
-//               comm_article: article,
-//               comm_createdAt: new Date(),
-//               comm_updatedAt: new Date()
-//             }
-//             mdata.comments.push(comm_obj)
-//             fs.writeFile(fullpathname, JSON.stringify(mdata), err => {
-//               if (err) throw err;
-//             })
-//             res.json({
-//               status: 1
-//             })
-//           })
-//         }
-//         else {
-//           res.render('posts', {
-//             data: [],
-//             date: null,
-//           })
-//         }
-//       }
-//     }
-//     else {
-//       res.json({
-//         status: 0
-//       })
-//     }
-//   })
-
-
 
 app.route('/:username/follow')
    .get((req, res) => {
@@ -1399,3 +1406,5 @@ app.listen(port, () => {
 // 21.01.2021 03:16 1212 https://prnt.sc/xbovy6
 // 22.01.2021 05:00 1277
 // 23.01.2021 05:24 1322
+// 02.02.2021 02:32 1437
+// 03.02.2021 04:45 1406

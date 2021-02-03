@@ -1,20 +1,19 @@
-
-const limit = 400;
-window.onload = function setblockqu() {
-  var allparags = document.getElementsByClassName('shortp');
-  for (var i = 0; i < allparags.length; i++) {
-    var paragtext = allparags[i].textContent;
-    paragtext = paragtext.trim();
-    if (paragtext.length >= limit) {
-      paragtext = paragtext.substring(0, limit);
-      allparags[i].innerHTML = ("<p>" + paragtext + "<b>..</b></p>");
+$('.closepopup').on('click', () => {
+  $('.popup').removeClass('popupactive')
+})
+function popup(message, popuptype, type, time) {
+  console.log('popup =>', $('.popup').css('display'));
+  if ($('.popup').css('opacity') == '0') {
+    $('.popup .message').html(message)
+    if (!type) type = 'default'
+    $('.popup').addClass('popupactive ' + type)
+    if (popuptype == 'auto') {
+      setTimeout(() => {
+        $('.popup').removeClass('popupactive')
+      }, time);
     }
-  };
+  }
 }
-
-
-
-
 
 verifiedTag = '<span class="verified"><i class="far fa-check-circle"></i></span>'
 
@@ -25,7 +24,6 @@ var goTopBtn = document.querySelector("#gotopbtn");
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = () => {
   scrollFunction();
-  console.log('s');
 };
 function scrollFunction() {
   let limit = 200
@@ -92,7 +90,10 @@ function like(e) {
     c = $('.likes' + postid)[0]
     d = $('.dislikes' + postid)[0]
     f = $('div[data-post-id=' + postid + '] .dislike')
-    if (res.status === 0) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' }) }
+    if (res.status === 0) {
+      message = `You should login for this <a href="/login">Let's login</a>`
+      popup(message, 'auto', 'warning', 3000)
+    }
     else if (res.status === 1) {
       c.innerHTML = (Number(c.textContent) + 1)
       e.src = '/img/arrow2.svg'
@@ -122,7 +123,8 @@ function dislike(e) {
     c = $('.likes' + postid)[0]
     f = $('div[data-post-id=' + postid + '] .like')
     if (res.status === 0) {
-      Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' })
+      message = `You should login for this <a href="/login">Let's login</a>`
+      popup(message, 'auto', 'warning', 3000)
     }
     else if (res.status === 1) {
       d.innerHTML = (Number(d.textContent) + 1)
@@ -151,13 +153,15 @@ function send(e) {
   message = $('div[data-post-id=' + postid + '] input[type=text]').val() || ''
   url = '/3/' + postid + '/event'
   c = $('div[data-post-id=' + postid + '] .comments')
-  console.log(c);
   if (message.length > 0) {
     data = { message }
     $.post(url, data, res => {
       input = $('div[data-post-id=' + postid + '] input[type=text]');
       console.log('isverified > ', res.isverified);
-      if (res.status === 0) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' }) }
+      if (res.status === 0) {
+        message = `You should login for this <a href="/login">Let's login</a>`
+        popup(message, 'auto', 'warning', 3000)
+      }
       else if (res.status === 1) {
         if (res.isverified)
           comment = '<div class="comment"><span class="uname">' + res.username + verifiedTag + '</span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>'
@@ -199,11 +203,8 @@ function follow(e) {
   $.post(url, res => {
     console.log('follow res: ', res);
     if (res.status === 0) {
-      Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', })
-        .then((result) => {
-          if (result.isConfirmed)
-            window.location.href = '/login'
-        })
+      message = `You should login for this <a href="/login">Let's login</a>`
+      popup(message, 'auto', 'warning', 3000)
     }
     else if (res.status === 1) {
       $('.follow').html('Unfollow')
@@ -228,14 +229,17 @@ function del(e) {
   url = '/delete/' + val
   $.post(url, res => {
     if (res.status === 0) {
-      Swal.fire({ icon: 'error', title: 'Oops...', text: 'Some errors while delete', })
+      message = `Some errors while delete`
+      popup(message, 'popup', 'danger')
     }
     else if (res.status === 1) {
       $('div[data-post-id=' + val + ']').removeAttr('data-post-id').remove()
-      Swal.fire({ icon: 'success', title: 'Yeyy...', text: 'Post deleted successfuly', })
+      message = `Post deleted successfuly`
+      popup(message, 'auto', 'success', 5000)
     }
     else if (res.status === 2) {
-      Swal.fire({ icon: 'error', title: 'Heyy!', text: 'Unauthorized process', })
+      message = `Unauthorized process!`
+      popup(message, 'popup', 'danger')
     }
   })
 }
@@ -248,13 +252,9 @@ function save(e) {
   url = '/save/' + val
   $.post(url, res => {
     console.log('save status: ', res);
-    console.log('e=>', e);
     if (res.status === 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'You should log in for this',
-      })
+      message = `You should login for this <a href="/login">Let's login</a>`
+      popup(message, 'auto', 'warning', 3000)
     }
     else if (res.status === 1) {
       $(e).html('<img src="/img/saved.svg" alt="">Saved')
@@ -263,18 +263,12 @@ function save(e) {
       $(e).html('<img src="/img/save.svg" alt="">Save')
     }
     else if (res.status === 3) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: res.message,
-      })
+      message = res.message
+      popup(message, 'auto', 'danger', 3000)
     }
     else {
-      Swal.fire({
-        icon: 'error',
-        title: 'IDK!',
-        text: 'something happened',
-      })
+      message = `I dont't know but something happened`
+      popup(message, 'auto', 'danger', 3000)
     }
   })
 }
@@ -295,20 +289,16 @@ function update(e) {
     adiv.empty()
     var y = $(window).scrollTop();
     if (res.status === 0) {
-      Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', })
-        .then((result) => {
-          if (result.isConfirmed)
-            window.location.href = '/login'
-        })
+      message = `You should login for this <a href="/login">Let's login</a>`
+      popup(message, 'auto', 'warning', 3000)
     }
     else if (res.status === 1) {
-      $('.msg').html('<h3 class="success">Successfuly updated.</h3>').show(300)
-      $(window).scrollTop(y - 50);
-      $(e).removeAttr('disabled')
+      message = `Successfuly updated.`
+      popup(message, 'auto', 'success', 3000)
     }
     else if (res.status === 2) {
-      $('.msg').html('<h3 class="danger">' + res.message + '</h3>').show(300)
-      $(window).scrollTop(y - 50);
+      message = res.message
+      popup(message, 'auto', 'danger', 3000)
       let counter = 5;
       let interval = setInterval(function () {
         counter--;
@@ -323,8 +313,8 @@ function update(e) {
     else if (res.status === 3) {
       let alts = res.alternatives
       f = true
-      $('.msg').html('<h3 class="danger">' + res.message + '</h3>').show(300)
-      $(window).scrollTop(y - 50);
+      message = res.message
+      popup(message, 'auto', 'danger', 3000)
 
       let counter = 5;
       let interval = setInterval(function () {
@@ -356,6 +346,7 @@ function update(e) {
 
 
 $('#postbtn').on('click', (e) => {
+  $('.slideToCart').css('transform', 'translate(50px, 50px)');
   addpost(e.currentTarget)
 });
 function addpost(e) {
@@ -363,19 +354,19 @@ function addpost(e) {
     $(e).attr('disabled', 'disabled')
     $('.msg').empty().hide()
     var y = $(window).scrollTop();
+    
     var counter = 5;
     console.log('post res => ', res);
     if (res.status === 0) {
-      Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', })
-        .then((result) => {
-          if (result.isConfirmed)
-            window.location.href = '/login'
-        })
+      message = `You should login for this <a href="/login">Let's login</a>`
+      popup(message, 'auto', 'warning', 3000)
     }
     else if (res.status === 1) {
-      $('.msg').html('<h3 class="success">Successfuly added post.</h3>').show(300)
+      message = `Successfuly added post.`
+      popup(message, 'auto', 'success', 3000)
+
       var interval = setInterval(function () {
-        $(e).html('Post in (' + counter + 's)')
+        $(e).html('Post again in (' + counter + 'sec)')
         if (counter == 0) {
           $(e).removeAttr('disabled')
           $(e).html('Post')
@@ -385,8 +376,8 @@ function addpost(e) {
       }, 1000);
     }
     else if (res.status === 2) {
-      $('.msg').html('<h3 class="danger">' + res.message + '</h3>').show(300)
-      $(window).scrollTop(y - 150);
+      message = res.message
+      popup(message, 'auto', 'danger', 3000)
       var interval = setInterval(function () {
         $(e).html('Post in (' + counter + 's)')
         if (counter == 0) {
@@ -415,21 +406,20 @@ $('.notif').on('click', (e) => {
     $.post(url, res => {
       console.log('notif res => ', res);
       if (res.status === 0) {
-        Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', })
-          .then((result) => {
-            if (result.isConfirmed)
-              window.location.href = '/login'
-          })
+        message = `You should login for this <a href="/login">Let's login</a>`
+        popup(message, 'auto', 'warning', 3000)
       }
       else if (res.status === 1 || res.status == 2) {
         notifloading.hide()
         if (res.status === 2) ad = true
         result = res.result
         if (result.length > 0) {
+
           var limit = 11;
           try {
+
             result.forEach((n, index) => {
-              console.log('foreach counter ',index);
+              console.log('foreach counter ', index);
               console.log('n => ', n);
               uname = res.users[index];
               switch (n.ncode) {
@@ -443,7 +433,7 @@ $('.notif').on('click', (e) => {
                   break;
 
                 case 2:
-                  t = `<li><a title="Go to `+uname+`\'s profile" href="/` + uname + `"><b>
+                  t = `<li><a title="Go to ` + uname + `\'s profile" href="/` + uname + `"><b>
                     `+ ((uname.length > limit) ? uname.substring(0, limit) + '..' : uname) + `
                   </b>started to follow you</a><span title="" class="ntime">
                                     `+ res.dates[index] + `
@@ -474,12 +464,20 @@ $('.notif').on('click', (e) => {
       }
       else if (res.status === 3) {
         notifloading.hide()
-        Swal.fire({ icon: 'error', title: 'Oops...', text: res.message, })
-          .then((result) => {
-            if (result.isConfirmed)
-              location.reload();
-          })
+        message = res.message + ' Please <a href="javascript:void(0)" onclick="location.reload()">refresh</a> the page.'
+        popup(message, 'popup', 'danger')
       }
     })
   }
 });
+
+markasread = true
+$('.markasread').on('click', () => {
+  if (markasread) {
+    url = '/markasread'
+    $.post(url, res => {
+      console.log('markasread res =>', res);
+    })
+  }
+})
+
