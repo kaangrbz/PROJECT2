@@ -35,11 +35,12 @@ function getpost() {
         if (res.status === 1) sj = true
 
         if (res.status === 0) {
-          Swal.fire({ icon: 'error', title: 'Oops...', text: 'You should log in for this', }).then((result) => { if (result.isConfirmed) window.location.href = '/login' })
+          message = `You should login for this <a href="/login">Let's login</a>`
+          popup(message, 'auto', 'warning', 3000)
         }
 
+        // for profile page
         else if (res.status === 1 || res.status === 2) {
-          // for profile page
           try {
             r = res.result
             lnd = res.lnd
@@ -155,9 +156,9 @@ function getpost() {
           }
         }
 
+        // for index page
         else if (res.status === 4) {
-          // for index page
-          adlimit = 10
+          adlimit = 8
           sj = true
           try {
             r = res.result
@@ -271,7 +272,10 @@ function getpost() {
         $('.posts').append(res.message)
         // $(window).scrollTop(y + 50);
       }
-      else if (res.result === null) {
+      else if (res.status === 5) {
+        message = `This account has been suspended for a while. <a href="/faq/questionid" style="color: inherit">Why?</a>`
+        $('.posts').append('<div style="margin-top:30px; padding: 10px 7px; font-size: 19px" class="warning">' + message + '</div>')
+        // popup(message, 'popup', 'warning')
       }
       else {
         console.log('somethins broked. res => \n', res);

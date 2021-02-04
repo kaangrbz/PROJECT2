@@ -9,15 +9,13 @@ $(window).on('load', (e) => {
   $('.addpost').show(500)
   $('.addpost').on('click', () => {
     if (isrotated) {
-      $('.addpost').css('transform', 'rotate(0deg)');
-      isrotated = false
+      $('.addpost').css('transform', 'rotate(0deg)'); isrotated = false
     } else {
-      $('.addpost').css('transform', 'rotate(45deg)');
-      isrotated = true
+      $('.addpost').css('transform', 'rotate(45deg)'); isrotated = true
     }
     sendposttag.toggleClass('active')
   })
-  $('.addpost').trigger('click')
+  // $('.addpost').trigger('click')
 })
 
 $("#article").on('keyup', function () {

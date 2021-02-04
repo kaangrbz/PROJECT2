@@ -16,9 +16,7 @@
       <div class="header">
         <div class="headercont">
           <div class="logo">
-            <a href="/">
-              <%- include('inc/logo.ejs') %>
-            </a>
+            <%- include('inc/logo.ejs') %>
           </div>
           <div class="search" title="Search something">
             <input type="text" name="search" id="search" placeholder="search box to here">
@@ -44,7 +42,8 @@
         <div class="cright">right</div>
 
 
-        <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
+        <%- include('inc/popup.ejs') %>
+          <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
       </div>
   </div>
 

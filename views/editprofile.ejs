@@ -2,141 +2,153 @@
 <html lang="en">
 
 <head>
-	
-  <%- include('inc/metatag.ejs') %>
-	
-	<link rel="stylesheet" href="/css/style.css">
-	<script src="/js/sweetalert2.all.min.js"></script>
-	<title>PROFILE PAGE</title>
+
+	<%- include('inc/metatag.ejs') %>
+
+		<link rel="stylesheet" href="/css/style.css">
+		<script src="/js/sweetalert2.all.min.js"></script>
+		<title>Edit your profile</title>
 </head>
 
 <body>
 	<div class="cont">
-    <%- include('inc/site_version.ejs') %>
-		<div class="header">
-			<div class="headercont">
-				<div class="logo">
-          <a href="/">
-            <%- include('inc/logo.ejs') %>
-          </a>
-        </div>
-				<div class="search">
-					<input type="text" name="search" id="search" placeholder="search box to here">
-					<span class="searchbtn">
-						<i class="fas fa-search"></i>
-					</span>
-				</div>
-				<div class="right">
-					<div class="notif">
-						<i class="far fa-bell" id="bell"></i>
+		<%- include('inc/site_version.ejs') %>
+			<div class="header">
+				<div class="headercont">
+					<div class="logo">
+						<a href="/">
+							<%- include('inc/logo.ejs') %>
+						</a>
 					</div>
-					<div class="notifications">
-						<div class="arrow"></div>
-						<div>
-							<% if (locals.notif){ %>
-								<ul>
-									<% if(notif.length>0){ notif.slice(-5).forEach(n =>{ %>
-										<li>
-											<% switch (n.ncode) { case 1: %>
-												<a href="post/<%= n.postid %>"><b>
-														<%= n.nuser %>
-													</b>liked your post </a>
-												<% break; case 2: %>
-													<a href="/<%= n.nuser %>"><b>
-															<%= n.nuser %>
-														</b> started to follow you</a>
-													<% break; case 3: %>
-														<a href="post/<%= n.postid %>"><b>
-																<%= n.nuser %>
-															</b>comment to your post</a>
-														<% break; default: break; } %>
-															<span class="ntime">
-																<%= n.ntime %>
-															</span>
-										</li>
-										<% }) } else{ %>
-											<li><a href="javascript:void(0)">There is no notif yet.</a></li>
-											<% } %>
-								</ul>
-								<% } %>
+					<div class="search">
+						<input type="text" name="search" id="search" placeholder="search box to here">
+						<span class="searchbtn">
+							<i class="fas fa-search"></i>
+						</span>
+					</div>
+					<div class="right">
+						<div class="notif">
+							<i class="far fa-bell" id="bell"></i>
 						</div>
-					</div>
-
-					<label class="mode-control">
-						<input type="checkbox" id="mode-btn">
-						<span><i class="fas fa-moon"></i></span>
-						<span><i class="fas fa-sun"></i></span>
-					</label>
-					<a class="logout" href="/logout" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
-					<div class="profile">
-						<a href="<%= (locals.username) ? '/'+username : 'javascript:void(0)' %>"><img src="/img/profile1.jpg" alt="right"></a>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="center prof">
-			<div class="centercont">
-				<div class="posts">
-					<div class="puser">
-						<div class="pname">
+						<div class="notifications">
+							<div class="arrow"></div>
 							<div>
-								<img src="/img/profile2.jpg" alt="">
-								<div>
-									<span>
-										<%= (locals.username) ? username : 'null' %>
-									</span>
-								</div>
+								<% if (locals.notif){ %>
+									<ul>
+										<% if(notif.length>0){ notif.slice(-5).forEach(n =>{ %>
+											<li>
+												<% switch (n.ncode) { case 1: %>
+													<a href="post/<%= n.postid %>"><b>
+															<%= n.nuser %>
+														</b>liked your post </a>
+													<% break; case 2: %>
+														<a href="/<%= n.nuser %>"><b>
+																<%= n.nuser %>
+															</b> started to follow you</a>
+														<% break; case 3: %>
+															<a href="post/<%= n.postid %>"><b>
+																	<%= n.nuser %>
+																</b>comment to your post</a>
+															<% break; default: break; } %>
+																<span class="ntime">
+																	<%= n.ntime %>
+																</span>
+											</li>
+											<% }) } else{ %>
+												<li><a href="javascript:void(0)">There is no notif yet.</a></li>
+												<% } %>
+									</ul>
+									<% } %>
 							</div>
 						</div>
-						<%= (locals.data) ? data.fullname : 'null' %>
-							<br>
-							<%= (locals.bio) ? bio : '' %>
-								<div class="pstatus">
-									<a href="#">
-										<div class="pcount">23</div>posts
-									</a>
-									<a href="#">
-										<div class="pfollowers">
-											<%= (locals.data) ? data.followers.c : 'null' %>
-										</div>followers
-									</a>
-									<a href="#">
-										<div class="pfollowings">
-											<%= (locals.data) ? data.following.c : 'null' %>
-										</div>following
-									</a>
-								</div>
-					</div>
 
-					<div class="edit">
-						<div class="editcont">
-							<div class="msg"></div>
-							
-							<form method="POST" onsubmit="return false" action="" id="updateform">
-								<input type="file" disabled name="profile">
-								<input type="text" value="<%= (locals.username) ? username : '' %>" name="username"
-									placeholder="username">
-									<div class="alts"></div>
-								<input type="text" value="<%= (locals.email) ? email : '' %>" name="email" placeholder="email">
-								<input type="text" value="<%= (locals.fullname) ? fullname : '' %>" name="fullname"
-									placeholder="full name">
-								<textarea name="biography" placeholder="biography" id="textarea" cols="30" rows="10"
-									maxlength="500"><%= (locals.biography) ? biography : '' %></textarea>
-								<div id="count"></div>
-								<button type="submit" id="update">Update</button>
-							</form>
+						<label class="mode-control">
+							<input type="checkbox" id="mode-btn">
+							<span><i class="fas fa-moon"></i></span>
+							<span><i class="fas fa-sun"></i></span>
+						</label>
+						<a class="logout" href="/logout" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+						<div class="profile">
+							<a href="<%= (locals.username) ? '/'+username : 'javascript:void(0)' %>"><img src="/img/profile1.jpg"
+									alt="right"></a>
 						</div>
 					</div>
 				</div>
-				<div class="cright">right</div>
 			</div>
-		</div>
-		<i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
-		<script src="/js/theme.min.js"></script>
-		<script src="/js/jquery.min.js"></script>
-		<script src="/js/fontawesome.js"></script>
-		<script src="/js/index.js"></script>
+
+			<div class="center prof">
+				<div class="centercont">
+					<div class="posts">
+						<div class="puser">
+							<div class="pname">
+								<div>
+									<img src="/img/profile2.jpg" alt="">
+									<div>
+										<%= (locals.username) ? username : 'null' %>
+											<%- (locals.verified)
+												? '<span class="verified" title="Verified account"><i class="far fa-check-circle"></i></span>'
+												: '' %>
+									</div>
+								</div>
+							</div>
+							<div class="userinfo">
+								<div class="fullname">
+									<%= (locals.fullname) ? fullname : '' %>
+								</div>
+								<div class="biography">
+									<%= (locals.biography) ? biography : '' %>
+								</div>
+							</div>
+							<div class="pstatus">
+								<a href="#">
+									<% console.log(pcount) %>
+										<div class="pcount">
+											<%= (locals.pcount || pcount===0) ? pcount : 'null' %>
+										</div>posts
+								</a>
+								<a href="#">
+									<div class="pfollowers">
+										<%= (locals.data) ? data.followers.c : 'null' %>
+									</div>followers
+								</a>
+								<a href="#">
+									<div class="pfollowings">
+										<%= (locals.data) ? data.following.c : 'null' %>
+									</div>following
+								</a>
+							</div>
+						</div>
+
+						<div class="edit">
+							<div class="editcont">
+								<div class="msg"></div>
+
+								<form method="POST" onsubmit="return false" action="" id="updateform">
+									<input type="file" disabled name="profile">
+									<input type="text" value="<%= (locals.username) ? username : '' %>" name="username"
+										placeholder="username">
+									<div class="alts"></div>
+									<input type="text" value="<%= (locals.email) ? email : '' %>" name="email" placeholder="email">
+									<input type="text" value="<%= (locals.fullname) ? fullname : '' %>" name="fullname"
+										placeholder="full name">
+									<textarea name="biography" placeholder="biography" id="textarea" cols="30" rows="10"
+										maxlength="500"><%= (locals.biography) ? biography : '' %></textarea>
+									<div id="count"></div>
+									<button type="submit" id="update">Update</button>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="cright">right</div>
+				</div>
+			</div>
+
+			<%- include('inc/popup.ejs') %>
+				<i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
+				<script src="/js/theme.min.js"></script>
+				<script src="/js/jquery.min.js"></script>
+				<script src="/js/fontawesome.js"></script>
+				<script src="/js/index.js"></script>
 </body>
 
 </html>

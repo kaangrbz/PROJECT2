@@ -64,8 +64,8 @@ const countObj = { users: 10000000, posts: 10000000 }
 const userpath = 'forbidden/users/u'
 const postpath = 'forbidden/posts/p'
 const unameReg = /^\w+$/
-const fnameReg = /^[a-zA-Z0-9ğüşöçİĞÜŞÖÇ]+$/
-const bioReg = /^[a-zA-Z0-9ğüşöçİĞÜŞÖÇ!@#$₺€%^&*()_+"'-]+$/
+const fnameReg = /^[a-zA-Z0-9 ğüşöçİĞÜŞÖÇ]+$/ // with spaace
+const bioReg = /^[a-zA-Z0-9ğüşöçİĞÜŞÖÇ!@#$₺€%^&*() _+"'-]+$/ // with space
 const emailReg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 
@@ -356,35 +356,35 @@ app.get('/logout', (req, res) => {
    res.redirect('/')
 })
 app.route('/edit')
-   .get((req, res) => {
-      if (req.session.username) {
+   .get(async (req, res) => {
+      if (req.session.userid) {
          username = req.session.username
          email = req.session.email
          fullname = req.session.fullname
-         User.findOne({ username }).select('biography userid -_id').then(b => {
-            if (b) {
-               fpn = userpath + b.userid + '/profile.json'
-               getJSON(fpn).then(data => {
-                  res.render('editprofile', { username, email, fullname, bio: b.biography, data })
-               })
-            }
-            else
-               res.render('editprofile', { username, email, fullname, bio: '' })
-         })
+         userid = req.session.userid
+         let b = await User.findOne({ username }).select('biography userid verified -_id')
+         if (b) {
+            fpn = userpath + b.userid + '/profile.json'
+            let data = await getJSON(fpn)
+            allposts = await Post.find({ userid }).select('postid -_id')
+            pcount = allposts.length
+            res.render('editprofile', { username, email, fullname, biography: b.biography, data, verified: b.verified, pcount })
+         }
+         else
+            res.render('editprofile', { username, email, fullname, bio: '' })
       }
       else {
          res.redirect('/login')
       }
    })
    .post(async (req, res) => {
-      console.log('376');
       if (req.session.userid) {
          userid = req.session.userid
 
          username = req.body.username
          email = req.body.email || null
          fullname = req.body.fullname || null
-         biography = req.body.biography || null
+         biography = req.body.biography || ''
          if (!username) {
             res.json({ message: 'Please enter a username', status: 2 })
          }
@@ -401,38 +401,40 @@ app.route('/edit')
                if (u) {
                   var min = 10;
                   var max = 100;
-                  var r = Math.floor(Math.random() * (max - min + 1)) + min;
 
+                  r = Math.floor(Math.random() * (max - min + 1)) + min;
                   a = await User.findOne({ username: username + r })
-                  alternatives.push(alt)
+                  alternatives.push(a)
+
                   r = Math.random().toString(36).replace(/[^a-zA-Z0-9_]+/g, '').substr(0, 3);
-
                   a = await User.findOne({ username: username + r })
-                  alternatives.push(alt)
+                  alternatives.push(a)
+
                   r = Math.random().toString(36).replace(/[^a-zA-Z]+/g, '').substr(0, 4);
-
                   a = await User.findOne({ username: username + r })
-                  alternatives.push(alt)
-                  console.log('alter => ', alternatives);
+                  alternatives.push(a)
+                  console.log('alts => ', alternatives);
                   res.json({ message: 'Username is exist try something else', status: 3, alternatives })
                }
             } else {
+               console.log('419 else');
                if (u.suspend) res.json({ message: 'Your account is suspended. You can\'t change your infos. please send email to me at <a href="mailto:abdikaangrbz@gmail.com">here</a>', status: 3, alternatives: [] })
-               else if (!emailReg.test(String(email).toLowerCase())) res.json({ message: 'Please enter a valid email, for example: abc@xyz.klm', status: 2 })
+               else if (!emailReg.test(String(email).toLowerCase())) res.json({ message: 'Please enter a valid email, for example: email@example.com', status: 2 })
                else if (!fullname) res.json({ message: 'Please write a name', status: 2 })
                else if (fullname.length < 5) res.json({ message: 'Fullname must be minimum 5 character', status: 2 })
                else if (!fnameReg.test(fullname)) res.json({ message: 'Allowed characters for fullname: A-Z a-z 0-9 _ ç ı ü ğ ö ş İ Ğ Ü Ö Ş Ç', status: 2 })
-               else if (biography !== '' || biography !== null) {
+               else if (!biography && biography !== '') {
+                  console.log('426 ');
                   if (!bioReg.test(biography)) res.json({ message: 'Allowed characters for biography: A-Z a-z 0-9 _ ç ı ü ğ ö ş İ Ğ Ü Ö Ş Ç ! @ # $ ₺ € % ^ & * ( ) _ + " \' - ', status: 2 })
                }
                else if (biography.length > 500) res.json({ message: 'Biography can\'t more than 500 letters', status: 2 })
                else {
                   //update db
-                  console.log('392 else');
                   filter = { userid }
                   update = { username, email, fullname, biography, updatedAt: new Date(), }
                   User.findOneAndUpdate(filter, update)
                      .then(result => {
+                        console.log('435 result =>', result);
                         if (result) {
                            req.session.username = result.username;
                            req.session.email = result.email;
@@ -483,11 +485,7 @@ app.route('/markasread')
       }
    })
 
-
-
-
-
-app.route('/:username')
+app.route('/:username') // :profile ////
    .get(async (req, res) => {
       if (req.params.username !== 'favicon.ico') {
          userid = req.session.userid
@@ -720,9 +718,9 @@ app.route('/:username/getpost')
                      isfirst = false // for 'you have no post, share now' and 'you have no more post. let\'s share more'
                      status = 1
                      try {
-                        pid = posts[posts.length - 1].postid // artirma olayini hallet
+                        pid = posts[posts.length - 1].postid; // artirma olayini hallet
 
-                        console.log('624 pid =>', pid); /// 
+                        // console.log('624 pid =>', pid); /// 
                         (user.verified) ? isverified = 1 : isverified = 0;
                         (user.userid === req.session.userid) ? isme = 1 : isme = 0
                         // posts.forEach((post, index) => {
@@ -733,7 +731,7 @@ app.route('/:username/getpost')
                            username = user.username
                            postfilepath = postpath + post.postid + '.json'
                            await getJSON(postfilepath).then(postfile => {
-                              console.log((index + 1) + '. post\'s file. postid: ' + post.postid);
+                              // console.log((index + 1) + '. post\'s file. postid: ' + post.postid);
                               (post.visibility) ? visibility.push(1) : visibility.push(0)
                               if (postfile.likes.who.includes(userid)) lnd.push([1, 0])
                               else if (postfile.dislikes.who.includes(userid)) lnd.push([0, 1])
@@ -779,11 +777,10 @@ app.route('/:username/getpost')
                }
                else {
                   // if user is suspended !!
-                  let message = 'user is suspended'
+                  let status = 5;
                   res.json({
                      status,
                      result: null,
-                     message
                   })
                }
             }

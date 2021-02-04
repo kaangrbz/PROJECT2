@@ -16,12 +16,8 @@ $black: #121212;
   list-style: none;
   outline: none;
   -webkit-font-smoothing: antialiased;
-}
-
-html {
   scroll-behavior: smooth !important;
 }
-
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: #f3f0e2;
@@ -45,6 +41,7 @@ $svgspinsec: 14s;
   margin: 0px;
   width: 100%;
   .headercont {
+    margin: 30px 0;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -57,13 +54,17 @@ $svgspinsec: 14s;
       font-weight: 500;
       font-family: "Raleway", sans-serif;
       border-radius: 3px;
-      padding: 5px 7px;
       transition: 200ms all;
     }
     .logo {
       z-index: 9999999;
       display: block;
       width: 100px;
+      .text {
+        margin-left: 15px;
+        font-weight: 800;
+        display: none;
+      }
       svg {
         animation: spin $svgspinsec infinite linear;
         position: fixed;
@@ -83,7 +84,6 @@ $svgspinsec: 14s;
     flex-direction: row;
     align-items: center;
     position: relative;
-    margin: 15px 15px 0 0;
     > * {
       margin-right: 15px;
     }
@@ -123,7 +123,7 @@ $svgspinsec: 14s;
     .notifications {
       position: absolute;
       top: -999px;
-      right: -10px;
+      right: -50px;
       transform: translateX(-50%);
       min-width: 400px;
       max-width: 500px;
@@ -220,10 +220,8 @@ $svgspinsec: 14s;
   .search {
     position: relative;
     #search {
-      margin-top: 20px;
-      margin-bottom: 10px;
       padding: 8px 12px;
-      width: 300px;
+      width: 400px;
       background: #3d3d3d;
       color: #f1f1f1;
       font-family: "Work Sans";
@@ -232,7 +230,7 @@ $svgspinsec: 14s;
       padding: 5px;
       cursor: pointer;
       position: absolute !important;
-      top: 20px;
+      top: 0;
       right: 7px;
     }
     i {
@@ -293,7 +291,7 @@ $svgspinsec: 14s;
         // background: -webkit-linear-gradient(74deg, rgba(159,14,14,1) 0%, rgba(172,47,47,1) 100%);
         // background: linear-gradient(74deg, rgba(159,14,14,1) 0%, rgba(172,47,47,1) 100%);
         // filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#9f0e0e",endColorstr="#ac2f2f",GradientType=1);
-        
+
         .cont {
           width: 700px;
           height: 500px;
@@ -367,6 +365,7 @@ $svgspinsec: 14s;
         overflow: hidden;
       }
       .editcont {
+        margin-top: 30px;
         display: flex;
         flex-direction: column;
         form {
@@ -395,7 +394,12 @@ $svgspinsec: 14s;
         }
       }
       .puser {
+        .userinfo {
+          padding: 0 20px;
+        }
         .pname {
+          padding-left: 20px;
+          margin-bottom: 20px;
           position: relative;
           display: flex;
           align-items: center;
@@ -415,7 +419,6 @@ $svgspinsec: 14s;
             display: flex;
             align-items: center;
             flex-direction: row;
-            margin-bottom: 20px;
           }
           img {
             min-width: 120px;
@@ -435,6 +438,7 @@ $svgspinsec: 14s;
           text-decoration: none;
         }
         .pstatus {
+          margin-top: 20px;
           display: flex;
           justify-content: space-evenly;
           a {
@@ -667,8 +671,7 @@ $svgspinsec: 14s;
 .addpost {
   position: fixed;
   display: none;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 48%;
   bottom: 20px;
   cursor: pointer;
   transition: 200ms all;
@@ -680,6 +683,7 @@ $svgspinsec: 14s;
     color: #6ac574;
   }
   i {
+    color: #6ac574;
     font-size: 40px;
   }
 }
@@ -775,6 +779,7 @@ body.dark {
 
 ///////////////////////////// .mode=control //////////////////////////////////
 .mode-control {
+  margin-left: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -845,9 +850,19 @@ body.dark .mode-control span {
     display: none;
   }
   .logo {
-    display: none;
+    width: auto !important;
     svg {
       display: none;
+    }
+    .text {
+      display: block !important;
+    }
+  }
+  .search {
+    $search-box-width: 300px;
+    width: $search-box-width;
+    #search {
+      width: $search-box-width !important;
     }
   }
   .headercont {
@@ -873,6 +888,13 @@ body.dark .mode-control span {
   .post {
     min-width: 500px !important;
   }
+  .search {
+    $search-box-width: 200px;
+    width: $search-box-width;
+    #search {
+      width: $search-box-width !important;
+    }
+  }
 }
 @media (max-width: 600px) {
   .centercont {
@@ -881,19 +903,37 @@ body.dark .mode-control span {
   .post {
     min-width: 400px !important;
   }
-  .headercont {
-    .right {
-      .notifications {
-        right: -165px;
-      }
+  .search {
+    $search-box-width: 300px;
+    width: $search-box-width;
+    #search {
+      width: $search-box-width !important;
     }
   }
-}
-@media (max-width: 550px) {
-  .search {
-    width: 150px;
-    #search {
-      width: 150px !important;
+  .headercont {
+    margin: 0 !important;
+    .logo {
+      margin: 0;
+      .text {
+        margin: 10px 0 !important;
+        a {
+          font-size: 30px !important;
+        }
+      }
+    }
+    flex-direction: column !important;
+    > div {
+      margin-bottom: 10px;
+    }
+
+    .right {
+      > * {
+        margin-right: 35px !important;
+      }
+      .notifications {
+        left: 50%;
+        transform: translateX(-50%);
+      }
     }
   }
 }
@@ -902,6 +942,9 @@ body.dark .mode-control span {
     .right {
       .notifications {
         min-width: 350px;
+      }
+      > * {
+        margin-right: 8px;
       }
     }
   }
@@ -1080,6 +1123,7 @@ hr {
   color: white;
 }
 .popup {
+  z-index: 9999;
   background-color: rgb(48, 48, 48);
   padding: 20px 15px;
   min-width: 400px;

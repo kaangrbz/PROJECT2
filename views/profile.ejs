@@ -18,9 +18,7 @@
 			<div class="header">
 				<div class="headercont">
 					<div class="logo">
-						<a href="/">
-							<%- include('inc/logo.ejs') %>
-						</a>
+						<%- include('inc/logo.ejs') %>
 					</div>
 					<div class="search">
 						<input type="text" name="search" id="search" placeholder="search box to here">
@@ -37,58 +35,63 @@
 			<div class="center prof">
 				<div class="centercont">
 					<%- include('inc/banner.ejs') %>
-					<%- include('inc/sendpost.ejs') %>
-						
-						<div class="puser">
-							<div class="pname">
-								<div>
-									<img src="/img/profile2.jpg" alt="">
+						<%- include('inc/sendpost.ejs') %>
+
+							<div class="puser">
+								<div class="pname">
 									<div>
-										<%= (locals.u2) ? u2 : 'null' %>
-											<%- (locals.verified)
-												? '<span class="verified" title="Verified account"><i class="far fa-check-circle"></i></span>'
-												: '' %>
+										<img src="/img/profile2.jpg" alt="">
+										<div>
+											<%= (locals.u2) ? u2 : 'null' %>
+												<%- (locals.verified)
+													? '<span class="verified" title="Verified account"><i class="far fa-check-circle"></i></span>'
+													: '' %>
+										</div>
+									</div>
+									<div class="pbtn">
+										<% if(locals.isme && isme){ %> <a href="/edit/">Edit profile</a>
+											<% } else{ %>
+												<a class="follow" data-username="<%= (locals.u2) ? u2 : 'javascript:void(0)' %>">
+													<%= (locals.isfollowed && isfollowed) ? 'Unfollow' : 'Follow' %>
+												</a>
+												<% } %>
+
 									</div>
 								</div>
-								<div class="pbtn">
-									<% if(locals.isme && isme){ %> <a href="/edit/">Edit profile</a>
-										<% } else{ %>
-											<a class="follow" data-username="<%= (locals.u2) ? u2 : 'javascript:void(0)' %>">
-												<%= (locals.isfollowed && isfollowed) ? 'Unfollow' : 'Follow' %>
-											</a>
-											<% } %>
-
+								<div class="userinfo">
+									<div class="fullname">
+										<%= (locals.u) ? u.fullname : '' %>
+									</div>
+									<div class="biography">
+										<%= (locals.u) ? u.biography : '' %>
+									</div>
+								</div>
+								<div class="pstatus">
+									<a href="#">
+										<% console.log(pcount) %>
+											<div class="pcount">
+												<%= (locals.pcount || pcount===0) ? pcount : 'null' %>
+											</div>posts
+									</a>
+									<a href="#">
+										<div class="pfollowers">
+											<%= (locals.data) ? data.followers.c : 'null' %>
+										</div>followers
+									</a>
+									<a href="#">
+										<div class="pfollowings">
+											<%= (locals.data) ? data.following.c : 'null' %>
+										</div>following
+									</a>
 								</div>
 							</div>
-							<%= (locals.u) ? u.fullname : '' %>
-								<br>
-								<%= (locals.u) ? u.biography : '' %>
-									<div class="pstatus">
-										<a href="#">
-											<% console.log(pcount) %>
-												<div class="pcount">
-													<%= (locals.pcount || pcount===0) ? pcount : 'null' %>
-												</div>posts
-										</a>
-										<a href="#">
-											<div class="pfollowers">
-												<%= (locals.data) ? data.followers.c : 'null' %>
-											</div>followers
-										</a>
-										<a href="#">
-											<div class="pfollowings">
-												<%= (locals.data) ? data.following.c : 'null' %>
-											</div>following
-										</a>
-									</div>
-						</div>
-						<div class="posts">
+							<div class="posts">
 
-						</div>
-						<div class="loading">
-							<img src="/img/bird.gif" alt="loadinggif">
-						</div>
-						<div class="cright">right</div>
+							</div>
+							<div class="loading">
+								<img src="/img/bird.gif" alt="loadinggif">
+							</div>
+							<div class="cright">right</div>
 				</div>
 			</div>
 

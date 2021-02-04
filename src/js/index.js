@@ -15,7 +15,7 @@ function popup(message, popuptype, type, time) {
   }
 }
 
-verifiedTag = '<span class="verified"><i class="far fa-check-circle"></i></span>'
+verifiedTag = '<span class="verified" title="Verified account"><i class="far fa-check-circle"></i></span>'
 
 ///////////////////////////////// gotopbtn ////////////////////////////
 //Get the button
@@ -164,9 +164,9 @@ function send(e) {
       }
       else if (res.status === 1) {
         if (res.isverified)
-          comment = '<div class="comment"><span class="uname">' + res.username + verifiedTag + '</span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>'
+          comment = '<div class="comment"><span class="uname"><a href="/' + res.username + '">' + res.username + verifiedTag + '</a></span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>'
         else
-          comment = '<div class="comment"><span class="uname">' + res.username + '</span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>'
+          comment = '<div class="comment"><span class="uname"><a href="/' + res.username + '">' + res.username + '</a></span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>'
         c.append(comment);
         input.val('')
       }
@@ -295,10 +295,20 @@ function update(e) {
     else if (res.status === 1) {
       message = `Successfuly updated.`
       popup(message, 'auto', 'success', 3000)
+      let counter = 5;
+      let interval = setInterval(function () {
+        counter--;
+        $(e).html('Update in (' + counter + 's)')
+        if (counter == 0) {
+          $(e).removeAttr('disabled')
+          $(e).html('Update')
+          clearInterval(interval);
+        }
+      }, 1000);
     }
     else if (res.status === 2) {
       message = res.message
-      popup(message, 'auto', 'danger', 3000)
+      popup(message, 'auto', 'danger', 4500)
       let counter = 5;
       let interval = setInterval(function () {
         counter--;
@@ -314,7 +324,7 @@ function update(e) {
       let alts = res.alternatives
       f = true
       message = res.message
-      popup(message, 'auto', 'danger', 3000)
+      popup(message, 'auto', 'danger', 4500)
 
       let counter = 5;
       let interval = setInterval(function () {
@@ -354,7 +364,7 @@ function addpost(e) {
     $(e).attr('disabled', 'disabled')
     $('.msg').empty().hide()
     var y = $(window).scrollTop();
-    
+
     var counter = 5;
     console.log('post res => ', res);
     if (res.status === 0) {
