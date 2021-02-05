@@ -7,7 +7,9 @@ $black: #121212;
   font-family: "georgia";
   src: url("../font/georgia.ttf");
 }
-
+html {
+  overflow-x: hidden;
+}
 * {
   margin: 0;
   padding: 0;
@@ -112,7 +114,7 @@ $svgspinsec: 14s;
         height: 18px;
         border-radius: 50%;
         line-height: 18px;
-        font-size: 10px;
+        font-size: 11px;
         text-align: center;
         cursor: pointer;
         &:empty {
@@ -122,14 +124,14 @@ $svgspinsec: 14s;
     }
     .notifications {
       position: absolute;
-      top: -999px;
-      right: -50px;
+      top: calc(50% + 20px) !important;
+      right: -100px;
       transform: translateX(-50%);
-      min-width: 400px;
-      max-width: 500px;
-      max-height: 400px;
-      overflow-y: scroll;
+      min-width: 500px;
+      max-width: 600px;
       min-height: 100px;
+      max-height: 600px;
+      overflow-y: scroll;
       width: 100%;
       margin: 0;
       margin-top: 10px;
@@ -138,11 +140,12 @@ $svgspinsec: 14s;
       background: #333;
       color: #f1f1f1;
       z-index: 99;
-      display: none;
+      display: flex;
       align-items: center;
       justify-content: space-between;
       transition: 500ms all;
       opacity: 0;
+      visibility: hidden;
       .markasread {
         font-size: 14px;
         padding-top: 0;
@@ -189,7 +192,14 @@ $svgspinsec: 14s;
         flex-direction: row;
         justify-content: space-between;
         i {
-          margin-left: 10px;
+          font-size: 25px;
+          margin-right: 10px;
+        }
+        i[class="fas fa-heart"] {
+          color: #f00 !important;
+        }
+        i[class="far fa-sad-tear"] {
+          margin-left: 10px !important;
           font-size: 40px;
         }
       }
@@ -201,7 +211,7 @@ $svgspinsec: 14s;
         padding-left: 0px;
         color: #f1f1f1;
         text-decoration: none;
-        font-size: 16px;
+        font-size: 15px;
       }
       .ntime {
         padding: 5px 0 2px 5px;
@@ -212,15 +222,37 @@ $svgspinsec: 14s;
     }
 
     .active {
-      display: flex;
+      visibility: visible;
       opacity: 1 !important;
       top: calc(50% + 20px) !important;
     }
   }
   .search {
     position: relative;
+    z-index: 5;
+    .results {
+      z-index: 4;
+      position: absolute;
+      top: 62px;
+      width: 100%;
+      left: 0px;
+      background-color: #333;
+      padding: 5px 8px;
+      transition: 300ms all;
+      visibility: hidden;
+      opacity: 0;
+      a {
+        color: #f1f1f1;
+      }
+      .r_active {
+        visibility: visible;
+        opacity: 1;
+        top: 31px;
+      }
+    }
     #search {
       padding: 8px 12px;
+      padding-right: 35px;
       width: 400px;
       background: #3d3d3d;
       color: #f1f1f1;
@@ -293,10 +325,9 @@ $svgspinsec: 14s;
         // filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#9f0e0e",endColorstr="#ac2f2f",GradientType=1);
 
         .cont {
-          width: 700px;
-          height: 500px;
-          border-left: 500px solid rgba(56, 56, 56, 0.8);
-          border-right: 500px solid rgba(56, 56, 56, 0.8);
+          min-width: 400px;
+          width: auto;
+          height: auto;
           background: rgb(31, 31, 31);
           background: -moz-linear-gradient(
             330deg,
@@ -461,6 +492,7 @@ $svgspinsec: 14s;
           // border:1px solid rgba(138, 138, 138, 0.7);
           border-radius: 5px;
           padding: 10px;
+
           .header {
             display: flex;
             flex-direction: row;
@@ -540,6 +572,10 @@ $svgspinsec: 14s;
               font-size: 12px;
             }
           }
+          .c {
+            //  comment count
+            margin-right: 5px !important;
+          }
           .article {
             margin-bottom: 10px;
             margin-right: 10px;
@@ -598,10 +634,15 @@ $svgspinsec: 14s;
             transform: rotateZ(90deg);
           }
         }
+        .commentcount {
+          font-size: 15px;
+          font-style: italic;
+        }
         .comments {
           margin-bottom: 15px;
           .comment {
             font-size: 15px;
+
             .uname {
               font-weight: 500;
               margin-right: 5px;
@@ -671,20 +712,19 @@ $svgspinsec: 14s;
 .addpost {
   position: fixed;
   display: none;
-  left: 48%;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 20px;
   cursor: pointer;
-  transition: 200ms all;
+  transition: 300ms all;
   z-index: 999;
   color: #56a760;
-  width: 40px;
-  height: 40px;
   &:hover {
     color: #6ac574;
   }
   i {
+    font-size: 30px;
     color: #6ac574;
-    font-size: 40px;
   }
 }
 .loading {
@@ -716,6 +756,7 @@ $svgspinsec: 14s;
   background: #d9534f !important;
 }
 .success {
+  color: #f1f1f1;
   background: #5cb85c !important;
 }
 .warning {
@@ -875,7 +916,7 @@ body.dark .mode-control span {
         }
       }
       .notifications {
-        right: -100px;
+        right: -150px;
       }
     }
   }
@@ -941,7 +982,7 @@ body.dark .mode-control span {
   .headercont {
     .right {
       .notifications {
-        min-width: 350px;
+        min-width: 400px;
       }
       > * {
         margin-right: 8px;
@@ -953,6 +994,18 @@ body.dark .mode-control span {
   }
   .post {
     min-width: 300px !important;
+  }
+}
+@media (max-width: 450px) {
+  .headercont {
+    .right {
+      .notifications {
+        min-width: 300px;
+      }
+      > * {
+        margin-right: 8px;
+      }
+    }
   }
 }
 
@@ -1122,34 +1175,91 @@ hr {
   background-color: #555555;
   color: white;
 }
-.popup {
-  z-index: 9999;
-  background-color: rgb(48, 48, 48);
-  padding: 20px 15px;
-  min-width: 400px;
-  display: flex;
-  flex-direction: row;
+.share-div {
+  display: none;
+  justify-content: center;
   align-items: center;
   position: fixed;
-  left: 20px;
-  bottom: -99px;
-  transition: 500ms all, 0ms color;
-  opacity: 0;
-  &:hover {
-    background-color: rgb(56, 56, 56);
-  }
-  .message {
-    flex: 1;
-    a {
-      color: inherit;
+  left: 50%; // for .share-active
+  top: 50%; // for .share-active top: -999px
+  transform: translate(-50%, -50%);
+  background-color: rgba(31, 31, 31, 0.795);
+  width: 100%;
+  height: 100vh;
+  .cont {
+    position: relative;
+    background: rgb(24, 24, 24);
+    padding: 20px 10px;
+    padding-top: 30px;
+    width: 400px;
+    height: auto;
+    z-index: 100;
+    .article {
+      .social-medias {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0px 5px;
+        padding-top: 5px;
+        .icon {
+          border-radius: 5px;
+          padding: 5px;
+          cursor: pointer;
+          font-size: 30px;
+          line-height: 30px;
+        }
+      }
+      .link-cont {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row;
+        align-items: center;
+        margin-top: 10px;
+        padding: 10px 5px;
+        border: 1px solid #fffdfd;
+        border-radius: 5px;
+        .link {
+          opacity: 0.8;
+        }
+        .copy-btn {
+          display: flex;
+          text-align: center;
+          cursor: pointer;
+          background: rgb(59, 59, 59);
+          padding: 5px;
+          border-radius: 1px;
+        }
+      }
+    }
+    .close {
+      cursor: pointer;
+      position: absolute;
+      padding: 5px;
+      font-size: 20px;
+      top: 0px;
+      right: 10px;
     }
   }
-  .closepopup {
-    padding: 5px;
-    cursor: pointer;
-  }
 }
-.popupactive {
-  opacity: 1;
-  bottom: 40px;
+.fb {
+  color: rgb(59, 89, 152);
+}
+.tw {
+  color: rgb(29, 161, 242);
+}
+.yt {
+  color: rgb(255, 0, 0);
+}
+.ig {
+  color: rgb(195, 42, 163);
+}
+.pin {
+  color: rgb(189, 8, 28);
+}
+.wp {
+  color: rgb(37, 211, 102);
+}
+.r {
+  color: rgb(255, 69, 0);
 }

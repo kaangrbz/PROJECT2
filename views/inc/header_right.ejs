@@ -3,17 +3,17 @@
   <span><i class="fas fa-moon"></i></span>
   <span><i class="fas fa-sun"></i></span>
 </label>
-<% if(locals.u1){ nlimit=2 %>
+<% if(locals.u1){%>
   <div class="notif" title="Notifications">
     <i class="far fa-bell" id="bell"></i>
-    <div class="ncount"><% (locals.ncount ) ? ((ncount <=nlimit)? ncount : nlimit+'+') : null %></div>
+    <div class="ncount"><%= (locals.ncount) ? ncount : '' %></div>
 
   </div>
   <div class="notifications">
     <img class="notifloading" src="/img/loading.gif" alt="loadinggif">
     <ul>
       <!-- markasread -->
-      <%- (locals.ncount && ncount>0 ) ? `<a href="javascript:void(0)" class="markasread"
+      <%- (locals.ncount && ncount> 0 ) ? `<a href="javascript:void(0)" class="markasread"
           title="Mark all notifications as read"><i class="fas fa-book-open"></i>Mark all as read</a>`: '' %>
     </ul>
   </div>

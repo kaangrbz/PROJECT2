@@ -1,19 +1,4 @@
-$('.closepopup').on('click', () => {
-  $('.popup').removeClass('popupactive')
-})
-function popup(message, popuptype, type, time) {
-  console.log('popup =>', $('.popup').css('display'));
-  if ($('.popup').css('opacity') == '0') {
-    $('.popup .message').html(message)
-    if (!type) type = 'default'
-    $('.popup').addClass('popupactive ' + type)
-    if (popuptype == 'auto') {
-      setTimeout(() => {
-        $('.popup').removeClass('popupactive')
-      }, time);
-    }
-  }
-}
+
 
 verifiedTag = '<span class="verified" title="Verified account"><i class="far fa-check-circle"></i></span>'
 
@@ -53,7 +38,7 @@ setInterval(randombgcolor,1100);
 */
 
 $('.notif').on('click', (e) => {
-  if ($('.notifications').css('display') == 'none') {
+  if ($('.notifications').css('opacity') != '0') {
     $('.notifications').addClass('active')
   }
   else {
@@ -155,6 +140,7 @@ function send(e) {
   c = $('div[data-post-id=' + postid + '] .comments')
   if (message.length > 0) {
     data = { message }
+    commentcount = $('div[data-post-id=' + postid + '] .c')
     $.post(url, data, res => {
       input = $('div[data-post-id=' + postid + '] input[type=text]');
       console.log('isverified > ', res.isverified);
@@ -164,9 +150,10 @@ function send(e) {
       }
       else if (res.status === 1) {
         if (res.isverified)
-          comment = '<div class="comment"><span class="uname"><a href="/' + res.username + '">' + res.username + verifiedTag + '</a></span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>'
+          comment = '<div class="comment"><span class="uname"><a href="/' + res.username + '">' + res.username + verifiedTag + '</a></span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>';
         else
-          comment = '<div class="comment"><span class="uname"><a href="/' + res.username + '">' + res.username + '</a></span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>'
+          comment = '<div class="comment"><span class="uname"><a href="/' + res.username + '">' + res.username + '</a></span><span class="cmsg">' + res.message + '</span><span class="cdate">' + res.date + '</span></div>';
+        $(commentcount).html((Number($(commentcount).text()) + 1))
         c.append(comment);
         input.val('')
       }
@@ -404,38 +391,70 @@ function addpost(e) {
   });
 }
 
+
+$('.report').on('click', (e) => {
+  console.log('reports are soon');
+  // report(e.currentTarget)
+});
+function report(e) {
+  postid = $(e).parent().parent().parent().parent().attr('data-post-id');
+  url = '/' + postid + '/report/'
+  isrepoted = true
+  if (isrepoted) {
+    isrepoted = false
+    $.post(url, res => {
+      if (res.status === 0) {
+        message = `You should login for this <a href="/login">Let's login</a>`
+        popup(message, 'auto', 'warning', 3000)
+      }
+      else if (res.status === 1) {
+        message = `Successfuly reported.`
+        popup(message, 'auto', 'success', 3000)
+        isrepoted = false
+      }
+      else if (res.status === 2) {
+        message = "You are already reported."
+        popup(message, 'auto', 'warning', 3000)
+        isrepoted = false
+      }
+      else if (res.status === 3) {
+        message = "There is an error. Please try again later"
+        popup(message, 'auto', 'danger', 3000)
+      }
+    });
+  }
+}
+
 let ad = true
 $('.notif').on('click', (e) => {
-  url = '/1/notif/'
-  if (ad && $('.notifications').css('display') !== 'none') {
+  url = '/notif/'
+  $('.notifications').toggleClass('active')
+  $('.ncount').hide(200)
+  if (ad && $('.notifications').css('opacity') == '0') {
     ad = false
     notifloading = $('.notifloading')
-    $('.ncount').html('').hide(200)
     notifloading.show(200)
     ntag = $('.notifications ul')
     $.post(url, res => {
-      console.log('notif res => ', res);
+      console.log('notif res => ', res.status);
       if (res.status === 0) {
         message = `You should login for this <a href="/login">Let's login</a>`
         popup(message, 'auto', 'warning', 3000)
       }
       else if (res.status === 1 || res.status == 2) {
         notifloading.hide()
-        if (res.status === 2) ad = true
+        if (res.status === 2) ad = true;
         result = res.result
         if (result.length > 0) {
-
           var limit = 11;
           try {
-
             result.forEach((n, index) => {
-              console.log('foreach counter ', index);
-              console.log('n => ', n);
               uname = res.users[index];
+              uname = ((uname.length > limit) ? uname.substring(0, limit) + '..' : uname)
               switch (n.ncode) {
                 case 1:
-                  t = `<li><a href="post/` + n.postid + `"><b>
-                  `+ ((uname.length > limit) ? uname.substring(0, limit) + '..' : uname) + `
+                  t = `<li><a href="/post/` + n.postid + `"><i class="fas fa-heart"></i><b>
+                  `+ uname + `
                 </b>liked your post </a><span class="ntime">
                                   `+ res.dates[index] + `
                                 </span></li><hr>`
@@ -443,8 +462,8 @@ $('.notif').on('click', (e) => {
                   break;
 
                 case 2:
-                  t = `<li><a title="Go to ` + uname + `\'s profile" href="/` + uname + `"><b>
-                    `+ ((uname.length > limit) ? uname.substring(0, limit) + '..' : uname) + `
+                  t = `<li><a title="Go to ` + uname + `\'s profile" href="/` + uname + `"><i class="fas fa-user-plus"></i><b>
+                    `+ uname + `
                   </b>started to follow you</a><span title="" class="ntime">
                                     `+ res.dates[index] + `
                                   </span></li><hr>`
@@ -452,11 +471,11 @@ $('.notif').on('click', (e) => {
                   break;
 
                 case 3:
-                  t = `<li><a href="/` + uname + `"><b>
-                      `+ ((uname.length > limit) ? uname.substring(0, limit) + '..' : uname) + `
-                    </b>started to follow you</a><span title="" class="ntime">
-                                      `+ res.dates[index] + `
-                                    </span></li><hr>`
+                  t = `<li><a href="/post/` + n.postid + `"><i class="fas fa-comment"></i><b>
+                  `+ uname + `
+                </b> commented on your post</a><span class="ntime">
+                                  `+ res.dates[index] + `
+                                </span></li><hr>`
                   ntag.append(t)
                   break;
               }
@@ -467,7 +486,7 @@ $('.notif').on('click', (e) => {
           }
         }
         else {
-          t = `<li><a href="javascript:void(0)">You have no notification<i class="far fa-sad-tear"></i></a></li><hr>`
+          t = `<li><a href="javascript:void(0)">You have no notification, yet..<i class="far fa-sad-tear"></i></a></li><hr>`
           ntag.append(t)
         }
 
@@ -487,7 +506,49 @@ $('.markasread').on('click', () => {
     url = '/markasread'
     $.post(url, res => {
       console.log('markasread res =>', res);
+      if (res.status === 0) {
+        message = `You should login for this <a href="/login">Let's login</a>`
+        popup(message, 'auto', 'warning', 3000)
+      }
+      else if (res.status === 1) {
+        message = `Successfuly marked as read.`
+        popup(message, 'auto', 'success', 3000)
+      }
+      else if (res.status === 2) {
+        message = res.message
+        popup(message, 'auto', 'danger', 3000)
+      }
     })
   }
 })
 
+$('#search').on('keyup', (e) => {
+  if (e.keyCode === 13) {
+    search($('#search').val())
+  }
+})
+
+$('.searchbtn').on('click', (e) => {
+  search($('#search').val())
+})
+
+issearched = false
+function search(string) {
+  if (!issearched) {
+    console.log(string);
+    url = '/search'
+    data = {
+      searchData: $('#search').val().trim().toLowerCase()
+    }
+    $.post(url, data, res => {
+      console.log(res);
+      if (res) {
+        issearched = true
+      }
+    })
+  }
+}
+// function stopSearch(searchTimeout) {
+//   console.log('stopped');
+//   clearTimeout(searchTimeout)
+// }

@@ -16,6 +16,10 @@ var sj = true
 verifiedTag = '<span class="verified" title="Verified account"><i class="far fa-check-circle"></i></span>'
 hiddenTag = '<span class="hidden" title="Hidden post, just you can see this post"><i class="far fa-eye-slash"></i></span>'
 // bannerTag = '<div class="banner"><a href="https://tr.link/ref/devkaan"><img src="//cdn.tr.link/img/728x90.png" title="Para Kazanmak İçin Tıkla Kayıt OL" /></a></div>'
+shareTag = '<a class="share" title="Share comment" href="javascript:void(0)"><img src="/img/share.svg" alt="">Share</a>'
+reportTag = '<a class="report" title="Report comment" href="javascript:void(0)"><img src="/img/report.svg" alt="">Report</a>'
+saveTag = '<a class="save" title="Save comment" href="javascript:void(0)"><img src="/img/save.svg" alt="">Save</a>'
+deleteTag = '<a class="del" title="Delete comment" href="javascript:void(0)"><img src="/img/delete.svg" alt="">Delete</a>'
 bannerTag = ''
 function getpost() {
   var y = $(window).scrollTop();
@@ -83,11 +87,11 @@ function getpost() {
             <div class="options">
               <div class="arrow"></div>
               <div>
-                `+ ((res.isme) ? '<a class="del" title="Delete comment" href="javascript:void(0)"><img src="/img/delete.svg" alt="">Delete</a>' : '') + `
-                <a title="Share comment" href="javascript:void(0)"><img src="/img/share.svg" alt="">Share</a>
-                <a title="Report comment" href="javascript:void(0)"><img src="/img/report.svg" alt="">Report</a>
-                <a title="Save comment" class="save"  href="javascript:void(0)"><img src="/img/save.svg" alt="">Save</a>
-                `+ ((res.isme) ? (res.visibility[abs] ? visible : hidden) : '') + `
+                `+ ((res.ismine) ? deleteTag : '') + `
+                `+ shareTag + `               
+                `+ reportTag + ` 
+                `+ saveTag + `               
+                `+ ((res.ismine) ? (res.visibility[abs] ? visible : hidden) : '') + `
               </div>
             </div>
           </div>
@@ -147,6 +151,8 @@ function getpost() {
               $(f + ' .send').on('click', (e) => { send(e.currentTarget) })
               $(f + ' .del').on('click', (e) => { del(e.currentTarget) })
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
+              $(f + ' .report').on('click', (e) => { report(e.currentTarget) })
+              $(f + ' .visibility').on('click', (e) => { visibility(e.currentTarget) })
             }
             // r.forEach((e, abs) => {
 
@@ -195,10 +201,10 @@ function getpost() {
             <div class="options">
               <div class="arrow"> </div>
               <div>
-                <a class="del" href="javascript:void(0)"><img src="/img/delete.svg" alt="">Delete</a>
-                <a href="javascript:void(0)"><img src="/img/share.svg" alt="">Share</a>
-                <a href="javascript:void(0)"><img src="/img/report.svg" alt="">Report</a>
-                <a class="save" href="javascript:void(0)"><img src="/img/save.svg" alt="">Save</a>
+              `+ ((res.ismine) ? deleteTag : '') + `
+              `+ shareTag + `               
+              `+ reportTag + ` 
+              `+ saveTag + `        
               </div>
             </div>
           </div>
@@ -233,8 +239,8 @@ function getpost() {
             `+ counts[abs][1] + `
             </span>
           </div>
-          <span class="commentcount">
-          `+ counts[abs][2] + `&nbsp;comment
+          <span class="commentcount"><span class="c">
+          `+ counts[abs][2] + `</span>comment
           </span>
           <div class="comments">
             <div class="comment">
@@ -261,6 +267,8 @@ function getpost() {
               $(f + ' .send').on('click', (e) => { send(e.currentTarget) })
               $(f + ' .del').on('click', (e) => { del(e.currentTarget) })
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
+              $(f + ' .report').on('click', (e) => { report(e.currentTarget) })
+              $(f + ' .visibility').on('click', (e) => { visibility(e.currentTarget) })
             });
           } catch (error) {
             $('.posts').append('Upload post error, Please refresh the page err:<br>' + error)

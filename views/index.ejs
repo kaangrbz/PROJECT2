@@ -6,6 +6,7 @@
   <%- include('inc/metatag.ejs') %>
 
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/popup.css">
 
     <title>PROJECT2</title>
 </head>
@@ -23,6 +24,13 @@
             <span class="searchbtn">
               <i class="fas fa-search"></i>
             </span>
+            <div class="results">
+              <img src="/img/loading.gif" alt="search loading gif" class="searchloading">
+              <span><a href="/kaan">kaan</a></span>
+              <span><a href="/kaan1">kaan1</a></span>
+              <span><a href="/kaan23">kaan23</a></span>
+              <span><a href="/kaan4112">kaan4112</a></span>
+            </div>
           </div>
           <div class="right">
             <%- include('inc/header_right.ejs') %>
@@ -42,10 +50,11 @@
         <div class="cright">right</div>
 
 
-        <%- include('inc/popup.ejs') %>
-          <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
       </div>
-  </div>
+    </div>
+    <%- include('inc/share.ejs') %>
+      <%- include('inc/popup.ejs') %>
+        <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
 
   <script src="/js/theme.min.js"></script>
   <script src="js/jquery.min.js"></script>
@@ -54,6 +63,7 @@
   <script src="js/index.js"></script>
   <script src="/js/post.js"></script>
   <script src="/js/addpost.js"></script>
+  <script src="/js/popup.js"></script>
   <script src="/js/utm_source.js"></script>
 </body>
 

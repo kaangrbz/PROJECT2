@@ -1,0 +1,47 @@
+.danger {
+  color: #f1f1f1;
+  background: #d9534f !important;
+}
+.success {
+  color: #f1f1f1;
+  background: #5cb85c !important;
+}
+.warning {
+  color: #f1f1f1;
+  background: #f0ad4e !important;
+}
+.info {
+  color: #f1f1f1;
+  background: #5bc0de !important;
+}
+.popup {
+  z-index: 9999;
+  background-color: rgb(48, 48, 48);
+  padding: 20px 15px;
+  min-width: 400px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: fixed;
+  left: 20px;
+  bottom: -99px;
+  transition: 500ms all, 0ms color;
+  opacity: 0;
+  &:hover {
+    background-color: rgb(56, 56, 56);
+  }
+  .message {
+    flex: 1;
+    a {
+      color: inherit;
+    }
+  }
+  .closepopup {
+    padding: 5px;
+    cursor: pointer;
+  }
+}
+.popupactive {
+  opacity: 1;
+  bottom: 40px;
+}

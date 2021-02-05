@@ -9,9 +9,9 @@ $(window).on('load', (e) => {
   $('.addpost').show(500)
   $('.addpost').on('click', () => {
     if (isrotated) {
-      $('.addpost').css('transform', 'rotate(0deg)'); isrotated = false
+      $('.addpost').css('transform', 'translateX(-50%) rotate(0deg) '); isrotated = false
     } else {
-      $('.addpost').css('transform', 'rotate(45deg)'); isrotated = true
+      $('.addpost').css('transform', 'translateX(-50%) rotate(135deg) '); isrotated = true
     }
     sendposttag.toggleClass('active')
   })

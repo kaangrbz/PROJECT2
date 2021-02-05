@@ -18,6 +18,7 @@ const {
    Post,
    Count,
    UTM,
+   Report,
 } = require('./models/blogs')
 const { get } = require('http')
 app.set('view engine', 'ejs')
@@ -117,6 +118,27 @@ app.use(session({
 // ## ROUTES ##
 // app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 
+app.route('/search')
+   .get((req, res) => {
+      res.redirect('/')
+   })
+   .post(async (req, res) => {
+      if (req.session.userid) {
+         console.log(req.body.searchData);
+         let posts = await Post.find({ article: "/${req.body.searchData}/i", visibility: true }).limit(4).sort({ createdAt: -1 })
+         let users = await User.find({ username: "/${req.body.searchData}/i", visibility: true }).limit(4).sort({ createdAt: -1 })
+
+
+         console.log('127 posts =>', posts);
+      }
+      else {
+         res.json({
+            status: 0
+         })
+      }
+   })
+
+
 app.get('/posts/*', function (req, res, next) {
    res.redirect('/')
 });
@@ -172,6 +194,7 @@ app.route('/') // home
                   if (!notif.read) ncount++
                })
             }
+            console.log('ncount =>', ncount);
             res.render('index', { u1, ncount })
          } catch (e) {
             res.render('index')
@@ -191,65 +214,98 @@ app.route('/login')
          res.render('login')
       }
    })
-   .post((req, res) => {
+   .post(async (req, res) => {
       var username = req.body.username
       var userpass = md5(req.body.userpass)
       if (username == '') {
-         res.render('signin', {
+         res.json({
             message: 'you should write your username',
-            status: undefined
+            status: 2
          })
       } else if (userpass == '') {
-         res.render('signin', {
+         res.json({
             message: 'you should write your password too',
-            status: undefined
+            status: 2
          })
       } else {
-         User.findOne({
-            username,
-            userpass: userpass
-         }, (error, result) => {
-            if (result === null) {
-               res.render('login', {
-                  message: 'username or password is wrong',
-                  status: 'danger'
-               })
-            } else {
-               req.session.id = result._id;
-               req.session.userid = result.userid
-               req.session.verified = result.verified
-               req.session.username = result.username;
-               req.session.email = result.email;
-               req.session.fullname = result.fullname;
-               res.redirect('/')
-            }
-         })
+         let result = await User.findOne({ username, userpass })
+         if (!result) {
+            res.json({
+               message: 'Username or password is wrong',
+               status: 2
+            })
+         } else {
+            req.session.id = result._id;
+            req.session.userid = result.userid
+            req.session.verified = result.verified
+            req.session.username = result.username;
+            req.session.email = result.email;
+            req.session.fullname = result.fullname;
+            res.json({
+               status: 1
+            })
+         }
       }
    })
+
+
 app.route('/signup')
    .get((req, res) => {
       res.render('signup')
    })
-   .post((req, res) => {
-      username = req.body.username || null;
-      userpass = md5(req.body.userpass) || null;
+   .post(async (req, res) => {
+      username = req.body.username.trim().toLowerCase() || null;
+      userpass = req.body.userpass.trim() || null;
       fullname = req.body.fullname.trim() || null;
-      email = req.body.email.trim() || null;
+      email = req.body.email.trim().toLowerCase() || null;
 
       var patt = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-      var t_email = patt.test(email)
-      if (!t_email) res.render('signup', { message: 'email', status: 'danger', username, fullname, email })
-      else if (!fullname) res.render('signup', { message: 'fullname', status: 'danger', username, fullname, email })
-      else if (!username) res.render('signup', { message: 'username', status: 'danger', username, fullname, email })
+
+      if (!emailReg.test(String(email))) res.json({ message: 'Please enter a valid email, for example: email@example.com', status: 2 })
+      else if (!fullname) res.json({ message: 'Please write a name', status: 2 })
+      else if (fullname.length < 3) res.json({ message: 'Fullname must be minimum 3 character', status: 2 })
+      else if (!fnameReg.test(fullname)) res.json({ message: 'Allowed characters for fullname: A-Za-z0-9_çıüğöşİĞÜÖŞÇ', status: 2 })
+      else if (!username) res.json({ message: 'Please write an username.', status: 2 })
+      else if (username.length < 4) res.json({ message: 'Username must be minimum 4 character.', status: 2 })
+      else if (!unameReg.test(username)) res.json({ message: 'Allowed characters for username: A-Za-z0-9_', status: 2 })
       // create function for forbidden usernames: ataturk etc...
-      else if (username === 'index') res.render('signup', { message: 'forbidden username', status: 'danger', username, fullname, email })
-      else if (!userpass) res.render('signup', { message: 'userpass', status: 'danger', username, fullname, email })
+      let u = await User.findOne({ username })
+      var alternatives = []
+      if (u) {
+         var min = 10;
+         var max = 100;
+
+         r = Math.floor(Math.random() * (max - min + 1)) + min;
+         alt = username + r
+         a = await User.findOne({ username: alt })
+         alternatives.push(alt)
+
+         r = Math.random().toString(36).replace(/[^a-zA-Z0-9_]+/g, '').substr(0, 3);
+         alt = username + r
+         a = await User.findOne({ username: alt })
+         alternatives.push(alt)
+
+         r = Math.random().toString(36).replace(/[^a-zA-Z]+/g, '').substr(0, 4);
+         alt = r + username
+         a = await User.findOne({ username: alt })
+         alternatives.push(alt)
+
+         r = Math.random().toString(36).replace(/[^a-zA-Z]+/g, '').substr(0, 2);
+         alt = r + username + r
+         a = await User.findOne({ username: alt })
+         alternatives.push(alt)
+
+         res.json({ message: 'Username is exist try something else.', status: 3, alternatives })
+      }
+      else if (t.isForbiddenUsername(username)) res.json({ message: 'You can not use this username.', status: 2 })
+      else if (!userpass) res.json({ message: 'You should write a password', status: 2 })
+      else if (userpass.length < 6) res.json({ message: 'Password must be minimum 6 character.', status: 2 })
       else {
          userObj = {
             email,
             fullname,
             username,
-            userpass,
+            userpass: md5(userpass),
             biography: '',
             visibility: true,
             suspend: false,
@@ -260,9 +316,9 @@ app.route('/signup')
 
          Count.findOneAndUpdate({}, { $inc: { users: 1 } })
             .then(ucount => {
-               if (ucount === null) {
+               if (!ucount) {
                   const count = new Count(countObj).save()
-                  userObj.userid = 10000000
+                  userObj.userid = countObj.userid // const
                }
                else {
                   userObj.userid = ucount.users + 1
@@ -404,17 +460,17 @@ app.route('/edit')
 
                   r = Math.floor(Math.random() * (max - min + 1)) + min;
                   a = await User.findOne({ username: username + r })
-                  alternatives.push(a)
+                  alternatives.push(username + r)
 
                   r = Math.random().toString(36).replace(/[^a-zA-Z0-9_]+/g, '').substr(0, 3);
                   a = await User.findOne({ username: username + r })
-                  alternatives.push(a)
+                  alternatives.push(username + r)
 
                   r = Math.random().toString(36).replace(/[^a-zA-Z]+/g, '').substr(0, 4);
                   a = await User.findOne({ username: username + r })
-                  alternatives.push(a)
+                  alternatives.push(username + r)
                   console.log('alts => ', alternatives);
-                  res.json({ message: 'Username is exist try something else', status: 3, alternatives })
+                  res.json({ message: 'Username is exist try something else.', status: 3, alternatives })
                }
             } else {
                console.log('419 else');
@@ -476,11 +532,63 @@ app.route('/markasread')
             })
             fs.writeFile(notifpath, JSON.stringify(notifs), err => {
                if (err) res.json({ status: 2, message: 'There is an error. Please try again later' })
-               res.json({ status: 1, message: 'Successfuly marked as read' })
+               res.json({ status: 1 })
             })
             // console.log(notifs);
          }
       } else {
+         res.json({ status: 0 })
+      }
+   })
+app.route('/notif/')
+   .get((req, res) => {
+      res.redirect('/')
+   })
+   .post(async (req, res) => {
+      if (req.session.userid) {
+         if (req.session.notifuser !== username) {
+            req.session.notifuser = username
+            lastnotif = 0
+         }
+         nlimit = 10
+         users = []
+         dates = []
+         userid = req.session.userid
+         fpn = userpath + userid + '/notifications.json'
+         let notifs = await getJSON(fpn)
+         nl = notifs.length
+         if (nl > 0) {
+            if (nl <= nlimit) {
+               // lover than or equal to 'nlimit'
+               for (let i = 0; i < nl; i++) {
+                  const element = notifs[i];
+                  let user = await User.findOne({ userid: element.userid })
+                  users.push(user.username)
+                  dates.push(t.formatDate(new Date(element.ntime), 'timeago'))
+                  if (i === (nl - 1)) {
+                     res.json({ status: 1, result: notifs, users, dates })
+                  }
+               }
+            } else {
+               // higher than 'nlimit'
+               // console.log('notifs.splice(lastnotif, nlimit) =>', notifs.splice(lastnotif, nlimit));
+               notifs.forEach(async (notif, i) => {
+                  user = await User.findOne({ userid: notif.userid })
+                  users.push(user.username)
+                  dates.push(t.formatDate(new Date(notif.ntime), 'timeago'))
+                  if (i == nl - 1) {
+                     lastnotif += nlimit
+                     res.json({ status: 2, result: notifs.splice(0, nlimit), users: users.splice(0, nlimit), dates: dates.splice(0, nlimit) })
+                  }
+               })
+            }
+         }
+         else {
+            //has not notif
+            res.json({ status: 1, result: [] })
+         }
+      }
+      else {
          res.json({ status: 0 })
       }
    })
@@ -506,36 +614,39 @@ app.route('/:username') // :profile ////
                pcount = allposts.length
                // console.log('pcount =>', allposts); /// 
                try {
-                  ncount = 0
-                  notifpath = userpath + userid + '/notifications.json'
-                  let notifs = await getJSON(notifpath)
-                  if (notifs.length > 0) {
-                     notifs.forEach((notif, i) => {
-                        if (!notif.read) ncount++
-                     })
+                  if (req.session.userid) { // if it is not visitor. logged in
+                     userid = req.session.userid
+                     ncount = 0
+                     notifpath = userpath + userid + '/notifications.json'
+                     let notifs = await getJSON(notifpath)
+                     if (notifs.length > 0) {
+                        notifs.forEach((notif, i) => {
+                           if (!notif.read) ncount++
+                        })
+                     }
                   }
+                  else {// if it is visitor
+                     ncount = ''
+                  }
+
                   fpn2 = userpath + u.userid + '/profile.json'
                   fs.readFile(fpn2, (err, data) => {
                      data = JSON.parse(data)
                      // console.log('data => ', data); /// 
                      i1 = data.followers.who.indexOf(userid)
                      isfollowed = false
-                     if (i1 > -1)
-                        isfollowed = true
-                     verified = false
-                     if (u.verified)
-                        verified = true
-                     res.render('profile', { data, u1, u2, isme, verified, isfollowed, u, pcount, ncount })
+                     if (i1 > -1) isfollowed = true;
+                     res.render('profile', { data, u1, u2, isme, verified: u.verified, isfollowed, u, pcount, ncount })
                   })
                } catch (error) {
-                  console.log('err => 338 \n', error);
+                  console.log('err => 581 \n', error);
                }
             }
             else {
-               res.render('404')
+               res.render('585')
             }
          } catch (error) {
-            console.log('err => 328', error);
+            console.log('err => 588', error);
          }
       }
    })
@@ -555,15 +666,17 @@ app.route('/:username/getpost')
             pcount = 0
             pid = 999999999999999
             isverified = []
-            isme = []
+            ismine = []
             usernames = []
             isfirst = true
          }
+
+         // for index page
          if (username === 'index') {
             plimit = 5
-            // for index page
             lnd = []
             counts = []
+            ismine = []
             try {
                fpn = userpath + userid + '/profile.json'
                let profiledata = await getJSON(fpn)
@@ -595,7 +708,11 @@ app.route('/:username/getpost')
                               else if (postfile.dislikes.who.includes(userid)) lnd.push([0, 1])
                               else lnd.push([0, 0])
 
-                              // is me control for delete button.
+                              // is me control for delete button. [-]
+                              if (postfile.userid === userid) ismine.push(1)
+                              else ismine.push(0)
+
+
 
                               counts.push([postfile.likes.c, postfile.dislikes.c, postfile.comments.c])
                               if ((i + 1) === posts.length) { // if last item
@@ -607,36 +724,11 @@ app.route('/:username/getpost')
                                     isverified,
                                     usernames,
                                     lnd,
-                                    counts
+                                    counts,
+                                    ismine
                                  })
                               }
                            }
-                           // posts.forEach((post, index) => {
-                           //    (user.verified) ? isverified.push(1) : isverified.push(0)
-                           //    usernames.push(user.username)
-                           //    postfilepath = postpath + post.postid + '.json'
-                           //    let postfile = await getJSON(postfilepath)
-                           //    // like/dislike control
-                           //    if (postfile.likes.who.includes(userid)) lnd.push([1, 0])
-                           //    else if (postfile.dislikes.who.includes(userid)) lnd.push([0, 1])
-                           //    else lnd.push([0, 0])
-
-                           //    // is me control for delete button.
-
-                           //    counts.push([postfile.likes.c, postfile.dislikes.c, postfile.comments.c])
-                           //    if ((index + 1) === posts.length) { // if last item
-
-                           //       res.json({
-                           //          // ilerde bunlari tek degiskende gonderebilirsin belki
-                           //          status,
-                           //          result: posts,
-                           //          isverified,
-                           //          usernames,
-                           //          lnd,
-                           //          counts
-                           //       })
-                           //    }
-                           // })
                         } catch (error) {
                            console.log('541 catch =>', error);
                         }
@@ -684,8 +776,8 @@ app.route('/:username/getpost')
                console.log('err => 494');
             }
          }
+         // if unexpected username
          else if (!unameReg.test(username)) {
-            // if unexpected username
             let message = 'Wrongusername'
             res.json({
                status,
@@ -693,15 +785,14 @@ app.route('/:username/getpost')
                message
             })
          }
+         // for profile page
          else {
-            // for profile page
             plimit = 4
             lnd = []
             counts = []
             visibility = []
             let user = await User.findOne({ username, visibility: true })
 
-            // console.log('610 user => ', user);
             status = 3
             if (user) {
                if (!user.suspend) { // user is not suspended
@@ -722,7 +813,7 @@ app.route('/:username/getpost')
 
                         // console.log('624 pid =>', pid); /// 
                         (user.verified) ? isverified = 1 : isverified = 0;
-                        (user.userid === req.session.userid) ? isme = 1 : isme = 0
+                        (user.userid === req.session.userid) ? ismine = 1 : ismine = 0
                         // posts.forEach((post, index) => {
 
                         // })
@@ -746,7 +837,7 @@ app.route('/:username/getpost')
                                     username,
                                     lnd,
                                     counts,
-                                    isme,
+                                    ismine,
                                     visibility
                                  })
                               }
@@ -759,10 +850,7 @@ app.route('/:username/getpost')
                   else {
                      // has not post
                      // let message
-                     // if (isfirst)
-                     //    message = 'Have no post. <a href="/">Let\'s share one</a>'
-                     // else
-                     //    message = 'Have no more post. <a href="/">Let\'s share one more</a>'
+
                      res.json({
                         status,
                         result: null
@@ -798,63 +886,6 @@ app.route('/:username/getpost')
       else res.json({ status: 0, result: 'not login' })
    })
 
-nlimit = 10
-app.route('/:ncode/notif/')
-   .get((req, res) => {
-
-   })
-   .post(async (req, res) => {
-      if (req.session.userid) {
-         if (req.params.ncode) {
-            if (req.session.notifuser !== username) {
-               req.session.notifuser = username
-               lastnotif = 0
-            }
-            users = []
-            dates = []
-            userid = req.session.userid
-            fpn = userpath + userid + '/notifications.json'
-            let notif = await getJSON(fpn)
-            nl = notif.length
-            console.log('notif length =>', nl);
-            if (nl > 0) {
-               if (nl <= nlimit) {
-                  // lover than or equal to 'nlimit'
-                  for (let i = 0; i < nl; i++) {
-                     const element = notif[i];
-                     let user = await User.findOne({ userid: element.userid })
-                     users.push(user.username)
-                     dates.push(t.formatDate(new Date(element.ntime), 'timeago'))
-                     if (i === (nl - 1)) {
-                        res.json({ status: 1, result: notif, users, dates })
-                     }
-                  }
-               } else {
-                  // higher than 'nlimit'
-                  lastnotif = notif[(nl - 1)].nid
-                  notif.forEach(async (notife, i) => {
-                     let user = await User.findOne({ userid: notife.userid })
-                     users.push(user.username)
-                     dates.push(t.formatDate(new Date(notife.ntime), 'timeago'))
-                     if (i == nl - 1) {
-                        res.json({ status: 2, result: notif.splice(0, nlimit), users: users.splice(0, nlimit), dates: dates.splice(0, nlimit) })
-                     }
-                  })
-               }
-            }
-            else {
-               //has not notif
-               res.json({ status: 1, result: [] })
-            }
-         }
-         else {
-            res.json({ status: 3, result: [], message: 'Unexpected notif process, please refresh the page' })
-         }
-      }
-      else {
-         res.json({ status: 0 })
-      }
-   })
 
 
 
@@ -1119,7 +1150,7 @@ app.route('/:ecode/:postid/event')
                   if (whoposted !== userid) {
                      fpn = userpath + whoposted + '/notifications.json'
                      getJSON(fpn).then(notif => {
-                        notifObj = { nid: notif.length + 1, userid: whoposted, postid, ncode: 3, ntime: new Date(), read: false }
+                        notifObj = { nid: notif.length + 1, userid, postid, ncode: 3, ntime: new Date(), read: false }
                         notif.unshift(notifObj)
                         fs.writeFile(fpn, JSON.stringify(notif), err => {
                            if (err) throw err
@@ -1307,6 +1338,27 @@ app.route('/delete/:postid')
                   res.json({ status: 2 })
                }
             })
+      }
+      else {
+         res.json({ status: 0 })
+      }
+   })
+
+app.route('/:postid/:reportNumber/report')
+   .get((req, res) => {
+      res.end('NOT_ALLOWED_METHOD')
+   })
+   .post((req, res) => {
+      if (req.session.userid) {
+         userid = req.session.userid
+         if (req.params.postid) {
+            postid = req.params.postid
+            reportnumber = req.params.reportnumber
+            Report.findOne()
+         }
+         else {
+            res.json({ status: 3, message: 'There is no post.' })
+         }
       }
       else {
          res.json({ status: 0 })

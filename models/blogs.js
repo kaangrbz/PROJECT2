@@ -123,12 +123,34 @@ const utmSchema = new Schema({
     timestamps: true
 })
 
-const UTM = mongoose.model('UTM', utmSchema);
+const UTM = mongoose.model('utm', utmSchema);
 
+const reportSchema = new Schema({
+    userid: {
+        type: String,
+        require: true
+    },
+    postid: {
+        type: String,
+        require: true
+    },
+    reasonNumber: {
+        type: Number,
+        required: true
+    },
+    reason: {
+        type: Number,
+        required: true
+    },
+}, {
+    timestamps: true
+})
+const Report = mongoose.model('Report', reportSchema);
 
 module.exports = {
     User,
     Post,
     Count,
     UTM,
+    Report
 }

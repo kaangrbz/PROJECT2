@@ -8,6 +8,7 @@
     "dev": "nodemon server.js --config nodemon.json",
     "lint:ejs": "ejslint views/posts.ejs",
     "style": "cd src/css/ && sass --watch style.scss:style.css --style compressed"
+    
   },
   "keywords": [
     "social",
