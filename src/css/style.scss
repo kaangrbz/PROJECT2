@@ -1218,6 +1218,9 @@ hr {
           cursor: pointer;
           font-size: 30px;
           line-height: 30px;
+          img {
+            width: 30px;
+          }
         }
       }
       .link-cont {
@@ -1234,6 +1237,8 @@ hr {
           opacity: 0.8;
           display: flex;
           align-items: center;
+          max-width: 280px;
+          overflow: hidden;
         }
         .copy-btn {
           display: flex;
@@ -1245,15 +1250,15 @@ hr {
           border-radius: 1px;
           height: 100%;
           transition: 400ms background;
-          &:hover{
+          &:hover {
             border-radius: 5px;
             background: rgb(102, 102, 102);
           }
-          &:active{
+          &:active {
             border-radius: 10px;
             background: transparent;
           }
-          i{
+          i {
             margin-right: 5px;
             font-size: 20px;
           }
@@ -1296,9 +1301,12 @@ hr {
 .r {
   color: rgb(255, 69, 0);
 }
-.in{
+.in {
   color: #0072b1 !important;
 }
-.def{
+.def {
   color: #f1f1f1 !important;
+}
+.sig {
+  color: #3a76f0 !important;
 }

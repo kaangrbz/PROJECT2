@@ -16,10 +16,10 @@ var sj = true
 verifiedTag = '<span class="verified" title="Verified account"><i class="far fa-check-circle"></i></span>'
 hiddenTag = '<span class="hidden" title="Hidden post, just you can see this post"><i class="far fa-eye-slash"></i></span>'
 // bannerTag = '<div class="banner"><a href="https://tr.link/ref/devkaan"><img src="//cdn.tr.link/img/728x90.png" title="Para Kazanmak İçin Tıkla Kayıt OL" /></a></div>'
-shareTag = '<a class="share" title="Share comment" href="javascript:void(0)"><img src="/img/share.svg" alt="">Share</a>'
-reportTag = '<a class="report" title="Report comment" href="javascript:void(0)"><img src="/img/report.svg" alt="">Report</a>'
-saveTag = '<a class="save" title="Save comment" href="javascript:void(0)"><img src="/img/save.svg" alt="">Save</a>'
-deleteTag = '<a class="del" title="Delete comment" href="javascript:void(0)"><img src="/img/delete.svg" alt="">Delete</a>'
+shareTag = '<a class="share" title="Share post" href="javascript:void(0)"><img src="/img/share.svg" alt="">Share</a>'
+reportTag = '<a class="report" title="Report post" href="javascript:void(0)"><img src="/img/report.svg" alt="">Report</a>'
+saveTag = '<a class="save" title="Save post" href="javascript:void(0)"><img src="/img/save.svg" alt="">Save</a>'
+deleteTag = '<a class="del" title="Delete post" href="javascript:void(0)"><img src="/img/delete.svg" alt="">Delete</a>'
 bannerTag = ''
 function getpost() {
   var y = $(window).scrollTop();
@@ -148,7 +148,10 @@ function getpost() {
               $(f + ' .send').on('click', (e) => { send(e.currentTarget) })
               $(f + ' .del').on('click', (e) => { del(e.currentTarget) })
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
-              $(f + ' .report').on('click', (e) => { report(e.currentTarget) })
+              $(f + ' .report').on('click', (e) => {
+                message = 'Report is soon';
+                popup(message, 'auto', 'warning', 2000)
+              })
               $(f + ' .share').on('click', (e) => {
                 $('.share-div').addClass('share-active');
                 $('.options').hide(200);
@@ -156,7 +159,8 @@ function getpost() {
                 link = protocol + '//' + window.location.hostname + '/post/' + postid
                 text = 'Hey%2C%20you%20should%20see%20this%20post%0A'
 
-                $('.link-cont .link').html((link.length > 35) ? link.substring(0, 35) + '..' : link)
+                $('.link-cont .link').html(link)
+                $('.link-cont .link').attr('title', link)
                 $('.facebook').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + link)
                 $('.twitter').attr('href', 'https://twitter.com/intent/tweet?url=' + link + '&text=' + text)
                 $('.whatsapp').attr('href', 'https://wa.me/?text=' + text + '' + link)
@@ -276,7 +280,10 @@ function getpost() {
               $(f + ' .send').on('click', (e) => { send(e.currentTarget) })
               $(f + ' .del').on('click', (e) => { del(e.currentTarget) })
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
-              $(f + ' .report').on('click', (e) => { report(e.currentTarget) })
+              $(f + ' .report').on('click', (e) => {
+                message = 'Report is soon';
+                popup(message, 'auto', 'warning', 2000)
+              })
               $(f + ' .share').on('click', (e) => {
                 $('.share-div').addClass('share-active');
                 $('.options').hide(200);
@@ -284,13 +291,16 @@ function getpost() {
                 link = protocol + '//' + window.location.hostname + '/post/' + postid
                 text = 'Hey%2C%20you%20should%20see%20this%20post%0A'
 
-                $('.link-cont .link').html((link.length > 35) ? link.substring(0, 35) + '..' : link)
+                $('.link-cont .link').html(link)
+                $('.link-cont .link').attr('title', link)
                 $('.facebook').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + 'https://www.youtube.com/watch?v=74LAYoqo0p4')
                 $('.twitter').attr('href', 'https://twitter.com/intent/tweet?url=' + link + '&text=' + text)
                 $('.whatsapp').attr('href', 'https://wa.me/?text=' + text + '' + link)
                 $('.pinterest').attr('href', 'https://pinterest.com/pin/create/button/?url=' + link + '&media=&description=' + text)
                 $('.linkedin').attr('href', 'https://www.linkedin.com/shareArticle?mini=true&url=' + link + '&title=&summary=' + text + '&source=')
+                $('.signal').attr('href', 'signal://send?text=' + text + link)
                 $('.mail').attr('href', 'mailto:info@example.com?&subject=' + text + '&body=' + link)
+                // 
               })
               $(f + ' .visibility').on('click', (e) => { console.log('soon'); })
             });

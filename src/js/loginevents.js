@@ -86,8 +86,8 @@ $('#signupbtn').on('click', (e) => {
         })
       }
       else {
-        message = 'hey'
-        popup(message, 'auto', 'warning', 3000)
+        message = 'There is an critical error. Please tell me this error <a href="mailto:abdikaangrbz@gmail.com">at here</a>'
+        popup(message, 'popup', 'danger', 3000)
       }
     })
     isclickedSignup = false

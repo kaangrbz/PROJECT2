@@ -327,16 +327,10 @@ app.route('/signup')
                   .save()
                   .then(result => {
                      if (!result) {
-                        res.render('signup', {
-                           message: 'user could not added, try again',
-                           status: 'danger'
-                        })
+                        res.json({ message: 'Sign up is not successfuly, please try again.', status: 2 })
                      }
                      else {
-                        res.render('login', {
-                           message: 'user added successfuly, let\'s login',
-                           status: 'success'
-                        })
+                        res.json({ status: 1 })
                      }
 
                      pathname = 'forbidden/'
@@ -385,20 +379,7 @@ app.route('/signup')
                      }
                   })
                   .catch((error) => {
-                     if (error.code == 11000) {
-                        // error codes page should need
-                        res.render('signup', {
-                           message: 'username is exist try another one',
-                           status: 'danger',
-                           username, fullname, email
-                        })
-                     }
-                     else {
-                        res.render('signup', {
-                           message: 'there is an error\n' + error,
-                           status: 'danger'
-                        })
-                     }
+                     res.json({ message: 'Sign up is not successfuly, please try again later.', status: 2 })
                   })
             })
             .catch(err => {
@@ -773,7 +754,7 @@ app.route('/:username/getpost')
                   })
                }
             } catch (error) {
-               console.log('err => 494');
+               console.log('err => 494\n', error);
             }
          }
          // if unexpected username
