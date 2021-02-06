@@ -156,7 +156,7 @@ function getpost() {
                 link = protocol + '//' + window.location.hostname + '/post/' + postid
                 text = 'Hey%2C%20you%20should%20see%20this%20post%0A'
 
-                $('.link-cont .link').html((link.length > 60) ? link.substring(0, 60) + '..' : link)
+                $('.link-cont .link').html((link.length > 35) ? link.substring(0, 35) + '..' : link)
                 $('.facebook').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + link)
                 $('.twitter').attr('href', 'https://twitter.com/intent/tweet?url=' + link + '&text=' + text)
                 $('.whatsapp').attr('href', 'https://wa.me/?text=' + text + '' + link)
@@ -284,7 +284,7 @@ function getpost() {
                 link = protocol + '//' + window.location.hostname + '/post/' + postid
                 text = 'Hey%2C%20you%20should%20see%20this%20post%0A'
 
-                $('.link-cont .link').html((link.length > 60) ? link.substring(0, 60) + '..' : link)
+                $('.link-cont .link').html((link.length > 35) ? link.substring(0, 35) + '..' : link)
                 $('.facebook').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + 'https://www.youtube.com/watch?v=74LAYoqo0p4')
                 $('.twitter').attr('href', 'https://twitter.com/intent/tweet?url=' + link + '&text=' + text)
                 $('.whatsapp').attr('href', 'https://wa.me/?text=' + text + '' + link)
