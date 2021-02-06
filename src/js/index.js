@@ -552,3 +552,23 @@ function search(string) {
 //   console.log('stopped');
 //   clearTimeout(searchTimeout)
 // }
+function copyToClipboard(element) {
+  var $temp = $("<input>");
+  $("body").append($temp);
+  $temp.val($(element).text()).select();
+  document.execCommand("copy");
+  $temp.remove();
+}
+$('.copy-btn').on('click', () => {
+  copyToClipboard('.link')
+  message = `Successfully copied to clipboard.`
+  popup(message, 'auto', 'success', 3000)
+})
+
+
+$('.share').on('click', () => {
+  $('.share-div').addClass('share-active')
+})
+$('.share-close', '.share-div').on('click', () => {
+  $('.share-div').removeClass('share-active')
+})

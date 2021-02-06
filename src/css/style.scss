@@ -955,7 +955,14 @@ body.dark .mode-control span {
     margin: 0 !important;
     .logo {
       margin: 0;
+      svg {
+        $svgspinsec: 0s;
+        position: initial !important;
+        margin: 10px auto;
+        display: block;
+      }
       .text {
+        display: none !important;
         margin: 10px 0 !important;
         a {
           font-size: 30px !important;
@@ -1176,16 +1183,19 @@ hr {
   color: white;
 }
 .share-div {
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
   position: fixed;
   left: 50%; // for .share-active
-  top: 50%; // for .share-active top: -999px
+  top: -999px;
   transform: translate(-50%, -50%);
+  transition: 300ms all;
   background-color: rgba(31, 31, 31, 0.795);
   width: 100%;
   height: 100vh;
+  visibility: hidden;
+  opacity: 0;
   .cont {
     position: relative;
     background: rgb(24, 24, 24);
@@ -1216,23 +1226,41 @@ hr {
         flex-direction: row;
         align-items: center;
         margin-top: 10px;
-        padding: 10px 5px;
+        padding: 0px 5px;
         border: 1px solid #fffdfd;
         border-radius: 5px;
         .link {
+          margin: 20px 0;
           opacity: 0.8;
+          display: flex;
+          align-items: center;
         }
         .copy-btn {
           display: flex;
           text-align: center;
           cursor: pointer;
-          background: rgb(59, 59, 59);
-          padding: 5px;
+          color: #fff;
+          background: transparent;
+          padding: 10px;
           border-radius: 1px;
+          height: 100%;
+          transition: 400ms background;
+          &:hover{
+            border-radius: 5px;
+            background: rgb(102, 102, 102);
+          }
+          &:active{
+            border-radius: 10px;
+            background: transparent;
+          }
+          i{
+            margin-right: 5px;
+            font-size: 20px;
+          }
         }
       }
     }
-    .close {
+    .share-close {
       cursor: pointer;
       position: absolute;
       padding: 5px;
@@ -1241,6 +1269,11 @@ hr {
       right: 10px;
     }
   }
+}
+.share-active {
+  top: 50%;
+  visibility: visible;
+  opacity: 1;
 }
 .fb {
   color: rgb(59, 89, 152);
@@ -1262,4 +1295,10 @@ hr {
 }
 .r {
   color: rgb(255, 69, 0);
+}
+.in{
+  color: #0072b1 !important;
+}
+.def{
+  color: #f1f1f1 !important;
 }

@@ -49,25 +49,23 @@ function getpost() {
             r = res.result
             lnd = res.lnd
             counts = res.counts
-            for (let abs = 0; abs < r.length; abs++) {
-
+            r.forEach((post, abs) => {
               if ((abs + 1) % adlimit === 0) {
                 $('.posts').append(bannerTag)
               }
-              let e = r[abs];
 
-              p = e.postid
-              f = '.post[data-post-id=' + p + ']'
+              postid = post.postid
+              f = '.post[data-post-id=' + postid + ']'
               b = $(f + ' .options div[class!=arrow]');
               hidden = '<a title="Hide post" class="visibility" href="javascript:void(0)"><i class="far fa-eye"></i> Make visible</a>';
               visible = '<a title="Make the post visible" class="visibility" href="javascript:void(0)"><i class="far fa-eye-slash"></i> Make hidden</a>';
-              d = new Date(e.createdAt)
+              d = new Date(post.createdAt)
               hour = d.getHours(), min = d.getMinutes(), day = d.getDate(), month = d.getMonth() + 1, hour = (hour < 10) ? '0' + hour : hour
               min = (min < 10) ? '0' + min : min, day = (day < 10) ? '0' + day : day, month = (month < 10) ? '0' + month : month
               dd = day + '.' + month + '.' + String(d.getFullYear()).substring(2) + ' ' + hour + ':' + min
 
 
-              a = `<div class="post" style="display: none;" data-post-id="` + e.postid + `"><div class="header">
+              a = `<div class="post" style="display: none;" data-post-id="` + postid + `"><div class="header">
             <div class="user">
               <img src="/img/80x80.jpg" alt="user profile">
               <div class="u">
@@ -98,7 +96,7 @@ function getpost() {
           <div class="article">
             <p class="ptext">
         
-            ` + e.article + `
+            ` + post.article + `
             </p>
             <div class="pmedia" style="display: none;">
               <img src="" alt="post img">
@@ -118,11 +116,11 @@ function getpost() {
           </div>
         
           <div class="buttons">
-            +<span class="likes` + e.postid + `">
+            +<span class="likes` + postid + `">
             `+ counts[abs][0] + `
             </span>
             /
-            -<span class="dislikes` + e.postid + `">
+            -<span class="dislikes` + postid + `">
             `+ counts[abs][1] + `
             </span>
           </div>
@@ -141,10 +139,9 @@ function getpost() {
             </form>
           </div></div>`
 
+              // profile page
               $('.posts').append(a)
-
               $(f).show(100)
-              // <a class="save" href="javascript:void(0)"><img src="/img/save.svg" alt="">Save</a>
               $(f + ' .like').on('click', (e) => { like(e.currentTarget) })
               $(f + ' .more').on('click', (e) => { more(e.currentTarget) })
               $(f + ' .dislike').on('click', (e) => { dislike(e.currentTarget) })
@@ -152,11 +149,23 @@ function getpost() {
               $(f + ' .del').on('click', (e) => { del(e.currentTarget) })
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
               $(f + ' .report').on('click', (e) => { report(e.currentTarget) })
-              $(f + ' .visibility').on('click', (e) => { visibility(e.currentTarget) })
-            }
-            // r.forEach((e, abs) => {
+              $(f + ' .share').on('click', (e) => {
+                $('.share-div').addClass('share-active');
+                $('.options').hide(200);
+                protocol = (window.location.protocol === 'http:' ? 'https:' : 'https:')
+                link = protocol + '//' + window.location.hostname + '/post/' + postid
+                text = 'Hey%2C%20you%20should%20see%20this%20post%0A'
 
-            // });
+                $('.link-cont .link').html((link.length > 60) ? link.substring(0, 60) + '..' : link)
+                $('.facebook').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + link)
+                $('.twitter').attr('href', 'https://twitter.com/intent/tweet?url=' + link + '&text=' + text)
+                $('.whatsapp').attr('href', 'https://wa.me/?text=' + text + '' + link)
+                $('.pinterest').attr('href', 'https://pinterest.com/pin/create/button/?url=' + link + '&media=&description=' + text)
+                $('.linkedin').attr('href', 'https://www.linkedin.com/shareArticle?mini=true&url=' + link + '&title=&summary=' + text + '&source=')
+                $('.mail').attr('href', 'mailto:info@example.com?&subject=' + text + '&body=' + link)
+              })
+              $(f + ' .visibility').on('click', (e) => { console.log('soon'); })
+            })
           } catch (error) {
             $('.posts').append('Upload post error, Please refresh the page err:<br>' + error)
           }
@@ -169,20 +178,21 @@ function getpost() {
           try {
             r = res.result
             counts = res.counts
-            r.forEach((e, abs) => {
+            r.forEach((post, abs) => {
               if ((abs + 1) === adlimit) {
                 adlimit = 0
                 $('.posts').append(bannerTag)
               }
-              d = new Date(e.createdAt)
+              postid = post.postid;
+              d = new Date(post.createdAt)
               h = d.getHours()
               m = d.getMinutes()
-              h = h <= 9 ? '0' + h : h
-              m = m <= 9 ? '0' + m : m
+              h = h <= 9 ? '0' + h : h;
+              m = m <= 9 ? '0' + m : m;
               dd = d.getDate() + '.' + d.getMonth() + '.' + String(d.getFullYear()).substring(2) + ' ' + h + ':' + m
               // `+ ((lnd[abs][0]) ? `<img class="like" src="/img/arrow2.svg" alt="">` : `<img class="like" src="/img/arrow.svg" alt="">`) + `
               // `+ ((lnd[abs][1]) ? `<img class="dislike" src="/img/arrow2.svg" alt="">` : `<img class="dislike" src="/img/arrow.svg" alt="">`) + `
-              a = `<div class="post"  style="display: none;" data-post-id="` + e.postid + `"><div class="header">
+              a = `<div class="post"  style="display: none;" data-post-id="` + postid + `"><div class="header">
             <div class="user">
               <img src="/img/80x80.jpg" alt="user profile">
               <div class="u">
@@ -211,7 +221,7 @@ function getpost() {
           <div class="article">
             <p class="ptext">
         
-            ` + e.article + `
+            ` + post.article + `
             </p>
             <div class="pmedia" style="display: none;">
               <img src="" alt="post img">
@@ -231,11 +241,11 @@ function getpost() {
           </div>
         
           <div class="buttons">
-            +<span class="likes` + e.postid + `">
+            +<span class="likes` + postid + `">
             `+ counts[abs][0] + `
             </span>
             /
-            -<span class="dislikes` + e.postid + `">
+            -<span class="dislikes` + postid + `">
             `+ counts[abs][1] + `
             </span>
           </div>
@@ -255,10 +265,9 @@ function getpost() {
           </div>
           </div>`
 
+              // profile page
               $('.posts').append(a)
-
-              p = e.postid
-              f = '.post[data-post-id=' + p + ']'
+              f = '.post[data-post-id=' + postid + ']'
               $(f).show(400)
               b = $('.post .options')
               $(f + ' .like').on('click', (e) => { like(e.currentTarget) })
@@ -268,12 +277,26 @@ function getpost() {
               $(f + ' .del').on('click', (e) => { del(e.currentTarget) })
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
               $(f + ' .report').on('click', (e) => { report(e.currentTarget) })
-              $(f + ' .visibility').on('click', (e) => { visibility(e.currentTarget) })
+              $(f + ' .share').on('click', (e) => {
+                $('.share-div').addClass('share-active');
+                $('.options').hide(200);
+                protocol = (window.location.protocol === 'http:' ? 'https:' : 'https:')
+                link = protocol + '//' + window.location.hostname + '/post/' + postid
+                text = 'Hey%2C%20you%20should%20see%20this%20post%0A'
+
+                $('.link-cont .link').html((link.length > 60) ? link.substring(0, 60) + '..' : link)
+                $('.facebook').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=' + 'https://www.youtube.com/watch?v=74LAYoqo0p4')
+                $('.twitter').attr('href', 'https://twitter.com/intent/tweet?url=' + link + '&text=' + text)
+                $('.whatsapp').attr('href', 'https://wa.me/?text=' + text + '' + link)
+                $('.pinterest').attr('href', 'https://pinterest.com/pin/create/button/?url=' + link + '&media=&description=' + text)
+                $('.linkedin').attr('href', 'https://www.linkedin.com/shareArticle?mini=true&url=' + link + '&title=&summary=' + text + '&source=')
+                $('.mail').attr('href', 'mailto:info@example.com?&subject=' + text + '&body=' + link)
+              })
+              $(f + ' .visibility').on('click', (e) => { console.log('soon'); })
             });
           } catch (error) {
             $('.posts').append('Upload post error, Please refresh the page err:<br>' + error)
           }
-          $('.posts').append(bannerTag)
         }
       }
       else if (res.status === 3) {
