@@ -61,7 +61,7 @@ function checkFileType(file, cb) {
    }
 }
 
-const countObj = { users: 10000000, posts: 10000000 }
+const countObj = { users: 10000000, posts: 10000000, reports: 100000000 }
 const userpath = 'forbidden/users/u'
 const postpath = 'forbidden/posts/p'
 const unameReg = /^\w+$/
@@ -345,6 +345,7 @@ app.route('/signup')
                            if (err) throw err
                         })
                      }
+                     console.log('result.userid => ', result.userid);
                      pathname = userpath + result.userid
                      if (!fs.existsSync(pathname)) {
                         fs.mkdir(pathname, (err) => {
@@ -405,10 +406,19 @@ app.route('/edit')
             let data = await getJSON(fpn)
             allposts = await Post.find({ userid }).select('postid -_id')
             pcount = allposts.length
-            res.render('editprofile', { username, email, fullname, biography: b.biography, data, verified: b.verified, pcount })
+
+            ncount = 0
+            notifpath = userpath + userid + '/notifications.json'
+            let notifs = await getJSON(notifpath)
+            if (notifs.length > 0) {
+               notifs.forEach((notif, i) => {
+                  if (!notif.read) ncount++
+               })
+            }
+            res.render('editprofile', { u1: username, email, fullname, biography: b.biography, data, verified: b.verified, pcount, ncount })
          }
          else
-            res.render('editprofile', { username, email, fullname, bio: '' })
+            res.render('editprofile', { u1: username, email, fullname, bio: '' })
       }
       else {
          res.redirect('/login')
@@ -507,7 +517,6 @@ app.route('/markasread')
          let notifs = await getJSON(notifpath)
          if (notifs.length > 0) {
             notifs.forEach((notif, i) => {
-
                console.log('--------------------------------------------- 734');
                if (!notif.read) notifs[i].read = true
             })
@@ -1325,20 +1334,55 @@ app.route('/delete/:postid')
       }
    })
 
-app.route('/:postid/:reportNumber/report')
+app.route('/:postid/report')
    .get((req, res) => {
       res.end('NOT_ALLOWED_METHOD')
    })
-   .post((req, res) => {
+   .post(async (req, res) => {
       if (req.session.userid) {
          userid = req.session.userid
          if (req.params.postid) {
             postid = req.params.postid
-            reportnumber = req.params.reportnumber
-            Report.findOne()
+            reportnumber = req.body.reportnumber
+            reporttext = req.body.reporttext.trim()
+            reportlimit = 3
+
+            let post = await Post.findOne({ userid, postid }) // if the owner and the reporting person are the same
+            if (!post) {
+               var start = new Date(); start.setHours(0, 0, 0, 0);
+               var end = new Date(); end.setHours(23, 59, 59, 999);
+               // find logged user's reports on today, if > reportlimit send msg: 'You report much post today'
+               let reports = await Report.find({ userid, createdAt: { $gte: start, $lt: end } })
+               if (reports.length === reportlimit) {
+                  res.json({ status: 2, message: 'You have exceeded your reporting limit. Try again tomorrow.' })
+               } else { // if not exeedeed reportlimit
+
+                  let reportcount = await Count.findOneAndUpdate({}, { $inc: { reports: 1 } });
+                  console.log('repoererewr =>', reportcount);
+                  let report = await new Report({
+                     reportid: (reportcount.reports ? reportcount.reports : countObj.reports),
+                     userid,
+                     postid,
+                     reportnumber,
+                     reporttext: escape(reporttext),
+                     reportlang: 'tr',
+                     status: 0
+                  }).save()
+                  if (report) {
+                     console.log('report.reportid =>', report.reportid);
+                     res.json({ status: 1, reportid: report.reportid })
+                  }
+                  else {
+                     res.json({ status: 2, message: 'Something went wrong. Please try again later.' })
+                  }
+               }
+            }
+            else {
+               res.json({ status: 2, message: 'You can not report your post.' })
+            }
          }
          else {
-            res.json({ status: 3, message: 'There is no post.' })
+            res.json({ status: 2, message: 'Wrong post number.' })
          }
       }
       else {

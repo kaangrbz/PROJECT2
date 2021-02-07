@@ -1,1 +1,1 @@
-{"userid":10000001,"likes":{"c":1,"who":[10000000]},"dislikes":{"c":0,"who":[]},"comments":{"c":0,"who":[]},"postid":10000000}
+{"userid":10000001,"likes":{"c":2,"who":[10000002,10000001]},"dislikes":{"c":0,"who":[]},"comments":{"c":0,"who":[]},"postid":10000000}

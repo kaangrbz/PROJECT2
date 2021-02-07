@@ -15,11 +15,11 @@ $(window).on('load', () => {
 var sj = true
 verifiedTag = '<span class="verified" title="Verified account"><i class="far fa-check-circle"></i></span>'
 hiddenTag = '<span class="hidden" title="Hidden post, just you can see this post"><i class="far fa-eye-slash"></i></span>'
-// bannerTag = '<div class="banner"><a href="https://tr.link/ref/devkaan"><img src="//cdn.tr.link/img/728x90.png" title="Para Kazanmak İçin Tıkla Kayıt OL" /></a></div>'
-shareTag = '<a class="share" title="Share post" href="javascript:void(0)"><img src="/img/share.svg" alt="">Share</a>'
-reportTag = '<a class="report" title="Report post" href="javascript:void(0)"><img src="/img/report.svg" alt="">Report</a>'
-saveTag = '<a class="save" title="Save post" href="javascript:void(0)"><img src="/img/save.svg" alt="">Save</a>'
-deleteTag = '<a class="del" title="Delete post" href="javascript:void(0)"><img src="/img/delete.svg" alt="">Delete</a>'
+// bannerTag = '<div class="banner"><a href="https://tr.link/ref/devkaan"><img class="lazyload" data-src="//cdn.tr.link/img/728x90.png" title="Para Kazanmak İçin Tıkla Kayıt OL" /></a></div>'
+shareTag = '<a class="share" title="Share post" href="javascript:void(0)"><img class="lazyload" data-src="/img/share.svg" alt="">Share</a>'
+reportTag = '<a class="report" title="Report post" href="javascript:void(0)"><img class="lazyload" data-src="/img/report.svg" alt="">Report</a>'
+saveTag = '<a class="save" title="Save post" href="javascript:void(0)"><img class="lazyload" data-src="/img/save.svg" alt="">Save</a>'
+deleteTag = '<a class="del" title="Delete post" href="javascript:void(0)"><img class="lazyload" data-src="/img/delete.svg" alt="">Delete</a>'
 bannerTag = ''
 function getpost() {
   var y = $(window).scrollTop();
@@ -67,7 +67,7 @@ function getpost() {
 
               a = `<div class="post" style="display: none;" data-post-id="` + postid + `"><div class="header">
             <div class="user">
-              <img src="/img/80x80.jpg" alt="user profile">
+              <img class="lazyload" data-src="/img/80x80.jpg" alt="user profile">
               <div class="u">
                 <a href="/` + res.username + `">
                   ` + res.username + `
@@ -99,7 +99,7 @@ function getpost() {
             ` + post.article + `
             </p>
             <div class="pmedia" style="display: none;">
-              <img src="" alt="post img">
+              <img class="lazyload" data-src="" alt="post img">
             </div>
           </div>
           <div class="buttons">
@@ -149,9 +149,12 @@ function getpost() {
               $(f + ' .del').on('click', (e) => { del(e.currentTarget) })
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
               $(f + ' .report').on('click', (e) => {
-                message = 'Report is soon';
-                popup(message, 'auto', 'warning', 2000)
+                $('.report-div').addClass('report-active');
+                $('.report-div .postid').html(postid)
+                $('.options').hide(200);
               })
+
+
               $(f + ' .share').on('click', (e) => {
                 $('.share-div').addClass('share-active');
                 $('.options').hide(200);
@@ -198,7 +201,7 @@ function getpost() {
               // `+ ((lnd[abs][1]) ? `<img class="dislike" src="/img/arrow2.svg" alt="">` : `<img class="dislike" src="/img/arrow.svg" alt="">`) + `
               a = `<div class="post"  style="display: none;" data-post-id="` + postid + `"><div class="header">
             <div class="user">
-              <img src="/img/80x80.jpg" alt="user profile">
+              <img class="lazyload" data-src="/img/80x80.jpg" alt="user profile">
               <div class="u">
                 <a href="/` + res.usernames[abs] + `">
                   ` + res.usernames[abs] + `
@@ -228,20 +231,20 @@ function getpost() {
             ` + post.article + `
             </p>
             <div class="pmedia" style="display: none;">
-              <img src="" alt="post img">
+              <img class="lazyload" data-src="" alt="post img">
             </div>
           </div>
           <div class="buttons">
           
           `+ (res.lnd[abs][0] ?
-                  '<img class="like" src="/img/arrow2.svg" alt="button">'
+                  '<img class="lazyload like" data-src="/img/arrow2.svg" alt="button">'
                   :
-                  '<img class="like" src="/img/arrow.svg" alt="button">') + `
+                  '<img class="lazyload like" data-src="/img/arrow.svg" alt="button">') + `
           
           `+ (res.lnd[abs][1] ?
-                  '<img class="dislike" src="/img/arrow2.svg" alt="button">'
+                  '<img class="lazyload dislike" data-src="/img/arrow2.svg" alt="button">'
                   :
-                  '<img class="dislike" src="/img/arrow.svg" alt="button">') + `
+                  '<img class="lazyload dislike" data-src="/img/arrow.svg" alt="button">') + `
           </div>
         
           <div class="buttons">
@@ -281,8 +284,9 @@ function getpost() {
               $(f + ' .del').on('click', (e) => { del(e.currentTarget) })
               $(f + ' .save').on('click', (e) => { save(e.currentTarget) })
               $(f + ' .report').on('click', (e) => {
-                message = 'Report is soon';
-                popup(message, 'auto', 'warning', 2000)
+                $('.report-div').addClass('report-active');
+                $('.report-div .postid').html(postid)
+                $('.options').hide(200);
               })
               $(f + ' .share').on('click', (e) => {
                 $('.share-div').addClass('share-active');

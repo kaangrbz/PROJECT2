@@ -100,7 +100,11 @@ const countSchema = new Schema({
     posts: {
         type: Number,
         default: 0
-    }
+    },
+    reports: {
+        type: Number,
+        default: 0
+    },
 })
 
 const Count = mongoose.model('Count', countSchema);
@@ -126,6 +130,11 @@ const utmSchema = new Schema({
 const UTM = mongoose.model('utm', utmSchema);
 
 const reportSchema = new Schema({
+    reportid: {
+        type: Number,
+        required: true,
+        unique: true,
+    },
     userid: {
         type: String,
         require: true
@@ -134,14 +143,24 @@ const reportSchema = new Schema({
         type: String,
         require: true
     },
-    reasonNumber: {
+    reportnumber: {
         type: Number,
         required: true
     },
-    reason: {
-        type: Number,
+    reporttext: {
+        type: String,
         required: true
     },
+    reportlang: {
+        type: String,
+        required: false
+    },
+    status: {
+        default: 0
+        // 0 => not looked
+        // 1 => accepted      -send notif to who reported-    -suspend post, or delete- 
+        // 2 => not accepted  -send notif to who reported-                      
+    }
 }, {
     timestamps: true
 })

@@ -244,10 +244,10 @@ function save(e) {
       popup(message, 'auto', 'warning', 3000)
     }
     else if (res.status === 1) {
-      $(e).html('<img src="/img/saved.svg" alt="">Saved')
+      $(e).html('<img data-src="/img/saved.svg" class="lazyload" alt="saved-btn">Saved')
     }
     else if (res.status === 2) {
-      $(e).html('<img src="/img/save.svg" alt="">Save')
+      $(e).html('<img data-src="/img/save.svg" class="lazyload" alt="save-btn">Save')
     }
     else if (res.status === 3) {
       message = res.message
@@ -571,4 +571,46 @@ $('.share').on('click', () => {
 })
 $('.share-close', '.share-div').on('click', () => {
   $('.share-div').removeClass('share-active')
+})
+
+$('.report').on('click', () => {
+  $('.report-div').addClass('report-active')
+})
+
+report_click = false
+$('.report-btn').on('click', (e) => {
+  if (!report_click) {
+    report_click = true
+    tag = e.currentTarget
+    reportnumber = $(tag).attr('data-report-number')
+    reporttext = $(tag).text()
+    postid = $('.report-div .postid').text()
+
+    url = '/' + postid + '/report';
+    data = {
+      reportnumber,
+      reporttext,
+    }
+    $.post(url, data, res => {
+      console.log('report res =>', res);
+      if (res.status === 0) {
+        message = `You should login for this <a href="/login">Let's login</a>`
+        popup(message, 'auto', 'warning', 3000)
+      }
+      else if (res.status === 1) {
+        message = `Successfuly reported. Your reportid: ` + res.reportid
+        popup(message, 'popup', 'success')
+      }
+      else if (res.status === 2) {
+        message = res.message
+        popup(message, 'auto', 'danger', 3000)
+      }
+      report_click = false
+    })
+
+  }
+})
+
+$('.report-close', '.report-div').on('click', () => {
+  $('.report-div').removeClass('report-active')
 })

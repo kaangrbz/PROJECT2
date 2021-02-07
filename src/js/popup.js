@@ -1,17 +1,1 @@
-
-$('.closepopup').on('click', () => {
-  $('.popup').removeClass('popupactive')
-})
-function popup(message, popuptype, type, time) {
-  console.log('popup =>', $('.popup').css('display'));
-  if ($('.popup').css('opacity') == '0') {
-    $('.popup .message').html(message)
-    if (!type) type = 'default'
-    $('.popup').addClass('popupactive ' + type)
-    if (popuptype == 'auto') {
-      setTimeout(() => {
-        $('.popup').removeClass('popupactive')
-      }, time);
-    }
-  }
-}
+function popup(p,o,s,u){console.log("popup =>",$(".popup").css("display")),"0"==$(".popup").css("opacity")&&($(".popup .message").html(p),s||(s="default"),$(".popup").addClass("popupactive "+s),"auto"==o&&setTimeout(()=>{$(".popup").removeClass("popupactive")},u))}$(".closepopup").on("click",()=>{$(".popup").removeClass("popupactive")});

@@ -5,9 +5,9 @@
 	<%- include('inc/metatag.ejs') %>
 		<link rel="stylesheet" href="/css/style.css">
 		<link rel="stylesheet" href="/css/popup.css">
-		<script src="/js/sweetalert2.all.min.js"></script>
+		
 		<script src="/js/jquery.min.js"></script>
-		<script src="/js/post.js"></script>
+		<script src="/js/post.min.js"></script>
 		<title>
 			<%= (locals.u2 ) ? u2+'\'s profile' : 'Profile' %>
 		</title>
@@ -41,7 +41,7 @@
 							<div class="puser">
 								<div class="pname">
 									<div>
-										<img src="/img/profile2.jpg" alt="">
+										<img class="lazyload" data-src="/img/profile2.jpg" alt="">
 										<div>
 											<%= (locals.u2) ? u2 : 'null' %>
 												<%- (locals.verified)
@@ -90,22 +90,24 @@
 
 							</div>
 							<div class="loading">
-								<img src="/img/bird.gif" alt="loadinggif">
+								<img class="lazyload" data-src="/img/bird.gif" alt="loadinggif">
 							</div>
 							<div class="cright">right</div>
 				</div>
 			</div>
 
 			<%- include('inc/share.ejs') %>
-				<%- include('inc/popup.ejs') %>
-					<i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
+				<%- include('inc/report.ejs') %>
+					<%- include('inc/popup.ejs') %>
+						<i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
 
-					<script src="/js/theme.min.js"></script>
-					<script src="/js/fontawesome.js"></script>
-					<script src="/js/index.js"></script>
-					<script src="/js/addpost.js"></script>
-					<script src="/js/popup.js"></script>
-					<script src="/js/utm_source.js"></script>
+						<script src="/js/theme.min.js"></script>
+						<script src="/js/lazysizes.min.js" async></script>
+						<script src="/js/fontawesome.js"></script>
+						<script src="/js/index.min.js"></script>
+						<script src="/js/addpost.js"></script>
+						<script src="/js/popup.js"></script>
+						<script src="/js/utm_source.js"></script>
 </body>
 
 </html>

@@ -25,7 +25,7 @@
               <i class="fas fa-search"></i>
             </span>
             <div class="results">
-              <img src="/img/loading.gif" alt="search loading gif" class="searchloading">
+              <img class="lazyload searchloading" data-src="/img/loading.gif" alt="search loading gif">
               <span><a href="/kaan">kaan</a></span>
               <span><a href="/kaan1">kaan1</a></span>
               <span><a href="/kaan23">kaan23</a></span>
@@ -43,7 +43,7 @@
             <%- include('inc/sendpost.ejs') %>
               <div class="posts"></div>
               <div class="loading">
-                <img src="/img/bird.gif" alt="loadinggif">
+                <img class="lazyload" data-src="/img/bird.gif" alt="loadinggif">
               </div>
         </div>
 
@@ -53,18 +53,18 @@
       </div>
   </div>
   <%- include('inc/share.ejs') %>
-    <%- include('inc/popup.ejs') %>
-      <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
+    <%- include('inc/report.ejs') %>
+      <%- include('inc/popup.ejs') %>
+        <i onclick="topFunction()" id="gotopbtn" title="Go to top" class="fas fa-arrow-up"></i>
 
-      <script src="/js/theme.min.js"></script>
-      <script src="js/jquery.min.js"></script>
-      <script src="js/fontawesome.js"></script>
-      <script src="/js/sweetalert2.all.min.js"></script>
-      <script src="js/index.js"></script>
-      <script src="/js/post.js"></script>
-      <script src="/js/addpost.js"></script>
-      <script src="/js/popup.js"></script>
-      <script src="/js/utm_source.js"></script>
+        <script src="/js/theme.min.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script src="js/fontawesome.js"></script>
+        <script src="/js/index.min.js"></script>
+        <script src="/js/post.min.js"></script>
+        <script src="/js/addpost.js"></script>
+        <script src="/js/popup.js"></script>
+        <script src="/js/utm_source.js"></script>
 </body>
 
 </html>
