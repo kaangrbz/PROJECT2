@@ -267,6 +267,7 @@ app.route('/signup')
       else if (!fnameReg.test(fullname)) res.json({ message: 'Allowed characters for fullname: A-Za-z0-9_çıüğöşİĞÜÖŞÇ', status: 2 })
       else if (!username) res.json({ message: 'Please write an username.', status: 2 })
       else if (username.length < 4) res.json({ message: 'Username must be minimum 4 character.', status: 2 })
+      else if (t.isForbiddenUsername(username)) res.json({ message: 'You can not use this username.', status: 2 })
       else if (!unameReg.test(username)) res.json({ message: 'Allowed characters for username: A-Za-z0-9_', status: 2 })
       // create function for forbidden usernames: ataturk etc...
       let u = await User.findOne({ username })
@@ -415,10 +416,10 @@ app.route('/edit')
                   if (!notif.read) ncount++
                })
             }
-            res.render('editprofile', { u1: username, email, fullname, biography: b.biography, data, verified: b.verified, pcount, ncount })
+            res.render('editprofile', { u1: username, username, email, fullname, biography: b.biography, data, verified: b.verified, pcount, ncount })
          }
          else
-            res.render('editprofile', { u1: username, email, fullname, bio: '' })
+            res.render('editprofile', { u1: username, username, email, fullname })
       }
       else {
          res.redirect('/login')
